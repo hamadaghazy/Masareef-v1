@@ -1,0 +1,3764 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>متابعة سارة وسيف - نظام كامل</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0a0e1a;
+      --surface:#111827;
+      --surface2:#1a2235;
+      --border:#1e2d45;
+
+      --sara:#e879f9;
+      --saraGlow: rgba(232,121,249,0.16);
+
+      --seif:#38bdf8;
+      --seifGlow: rgba(56,189,248,0.16);
+
+      --gold:#f59e0b;
+      --text:#e2e8f0;
+      --muted:#64748b;
+
+      --success:#10b981;
+      --danger:#f43f5e;
+      --warn:#f59e0b;
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+
+    body{
+      font-family: "Cairo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.10) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.08) 0%, transparent 100%),
+        radial-gradient(600px at 0% 0%, rgba(56,189,248,0.06), transparent),
+        radial-gradient(600px at 100% 100%, rgba(232,121,249,0.06), transparent);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .container{
+      position:relative;
+      z-index:1;
+      max-width:1400px;
+      margin:0 auto;
+      padding:24px;
+    }
+
+    header{
+      text-align:center;
+      padding: 28px 12px 12px;
+    }
+
+    header h1{
+      font-family:"Tajawal", sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--seif), var(--sara));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      margin-bottom:6px;
+    }
+
+    header p{
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .top-actions{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      padding: 11px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-family:"Cairo", sans-serif;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor:pointer;
+      transition: transform .15s, filter .15s, background .15s;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.08); }
+    .btn:active{ transform: translateY(0); }
+    .btn:disabled{ opacity: 0.55; cursor:not-allowed; transform:none; filter:none; }
+
+    .btn-sara{ border-color: rgba(232,121,249,0.35); background: rgba(232,121,249,0.12); color: var(--sara); }
+    .btn-seif{ border-color: rgba(56,189,248,0.35); background: rgba(56,189,248,0.12); color: var(--seif); }
+    .btn-gold{ border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10); color: var(--gold); }
+    .btn-danger{ border-color: rgba(244,63,94,0.55); background: rgba(244,63,94,0.12); color: var(--danger); }
+
+    .hint{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .tabs{
+      display:flex;
+      justify-content:center;
+      gap: 12px;
+      flex-wrap:wrap;
+      margin: 20px 0 14px;
+    }
+
+    .tab-btn{
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 900;
+      cursor:pointer;
+      transition: .2s;
+    }
+
+    .tab-btn.active-sara{ border-color: var(--sara); color: var(--sara); background: var(--saraGlow); box-shadow: 0 0 18px var(--saraGlow); }
+    .tab-btn.active-seif{ border-color: var(--seif); color: var(--seif); background: var(--seifGlow); box-shadow: 0 0 18px var(--seifGlow); }
+    .tab-btn.active-both{ border-color: var(--gold); color: var(--gold); background: rgba(245,158,11,0.10); box-shadow: 0 0 18px rgba(245,158,11,0.12); }
+
+    .panel{ display:none; }
+    .panel.active{ display:block; animation:fadeIn .35s ease; }
+
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(10px);} to{opacity:1; transform: translateY(0);} }
+
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow:hidden;
+      margin-bottom: 16px;
+    }
+
+    .student-header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      padding: 18px 18px;
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
+
+    .avatar{
+      width: 64px; height:64px;
+      border-radius: 50%;
+      display:grid;
+      place-items:center;
+      font-size: 2rem;
+      border:2px solid currentColor;
+      flex-shrink:0;
+    }
+
+    .info{ flex:1; min-width: 220px; }
+    .info h2{ font-size: 1.6rem; font-weight: 900; }
+    .info p{ color: var(--muted); margin-top: 2px; font-size: 0.92rem; }
+
+    .totalbox{
+      text-align:center;
+      min-width: 180px;
+    }
+    .totalbox .amount{
+      font-size: 1.9rem;
+      font-weight: 900;
+      font-family:"Tajawal", sans-serif;
+    }
+    .totalbox .label{
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin: 14px 0 14px;
+    }
+    .stat{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align:center;
+    }
+    .stat .v{
+      font-size: 1.55rem;
+      font-weight: 900;
+      font-family:"Tajawal", sans-serif;
+      margin-bottom: 4px;
+    }
+    .stat .k{ color: var(--muted); font-size: 0.82rem; font-weight: 700; }
+
+    .section-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin: 10px 0 14px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .subject{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow:hidden;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .subject:hover{ transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,0,0,0.30); }
+
+    .subject-head{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display:flex;
+      gap: 12px;
+      align-items:center;
+    }
+    .icon{
+      width: 44px; height:44px;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      font-size: 1.3rem;
+      background: rgba(255,255,255,0.06);
+      flex-shrink:0;
+    }
+    .stitle{ flex:1; }
+    .stitle h3{ font-size: 1.05rem; font-weight: 900; }
+    .stitle p{ color: var(--muted); font-size: 0.84rem; margin-top:2px; }
+    .cost{
+      font-size: 1.05rem;
+      font-weight: 900;
+      font-family:"Tajawal", sans-serif;
+      white-space:nowrap;
+    }
+
+    .subject-body{ padding: 14px 16px; }
+
+    .list{ list-style:none; display:flex; flex-direction:column; gap:8px; }
+    .li{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+    .day{
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      background: rgba(255,255,255,0.06);
+      white-space:nowrap;
+    }
+    .time{ margin-right:auto; color: var(--muted); font-size: 0.85rem; }
+
+    .progress{
+      margin-top: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .meta{
+      display:flex;
+      gap:10px;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.84rem;
+      flex-wrap:wrap;
+      margin-bottom: 8px;
+    }
+    .bar{
+      height: 9px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow:hidden;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(56,189,248,0.9), rgba(232,121,249,0.9));
+    }
+    .badge{
+      margin-top: 10px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+    .badge.locked{
+      border-color: rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.12);
+      color: var(--gold);
+    }
+
+    .cycle-stats{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+    .cycle-stats b{ color: var(--text); }
+
+    .week-mini{
+      margin-top: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .week-mini-title{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap:wrap;
+      font-weight: 900;
+      font-size: 0.92rem;
+    }
+    .week-mini-row{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius: 12px;
+      padding: 10px 12px;
+      flex-wrap:wrap;
+      margin-bottom: 8px;
+    }
+    .week-mini-row:last-child{ margin-bottom: 0; }
+    .week-mini-row.done{ opacity: 0.78; }
+    .w-when{ font-weight: 900; }
+    .w-time{ color: var(--muted); font-size: 0.86rem; }
+    .w-status{ margin-right:auto; color: var(--muted); font-size: 0.82rem; }
+    .week-mini-actions{
+      display:flex;
+      gap: 6px;
+      flex-wrap:wrap;
+    }
+    .week-empty{
+      color: var(--muted);
+      font-size: 0.86rem;
+      text-align:center;
+      padding: 8px 6px;
+    }
+
+    .today-row .w-status{ margin-right: 0; }
+    .today-row .esub{ flex: 1; min-width: 170px; }
+
+    .subject-foot{
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .mini{
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      transition:.15s;
+    }
+    .mini:hover{ transform: translateY(-1px); filter: brightness(1.08); }
+    .mini.danger{ border-color: rgba(244,63,94,0.55); color: var(--danger); background: rgba(244,63,94,0.12); }
+    .mini.pay{ border-color: rgba(245,158,11,0.40); color: var(--gold); background: rgba(245,158,11,0.10); }
+    .mini.ok{ border-color: rgba(16,185,129,0.55); color: var(--success); background: rgba(16,185,129,0.12); }
+    .mini.sm{ padding: 6px 10px; font-size: 0.82rem; border-radius: 11px; }
+    .mini:disabled{ opacity:0.55; cursor:not-allowed; transform:none; filter:none; }
+
+    .mini.active{
+      border-color: rgba(245,158,11,0.40);
+      background: rgba(245,158,11,0.10);
+      color: var(--gold);
+    }
+
+    .table-wrap{ overflow:auto; }
+    table{ width:100%; border-collapse: collapse; }
+    th{
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 10px 14px;
+      text-align:right;
+      border-bottom: 1px solid var(--border);
+      font-weight: 900;
+      white-space:nowrap;
+    }
+    td{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+    tr:last-child td{ border-bottom:none; }
+
+    .week-body{
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    .event{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--surface2);
+      border-right: 4px solid rgba(255,255,255,0.18);
+      flex-wrap:wrap;
+      font-size: 0.92rem;
+    }
+    .eday{ min-width: 70px; font-weight: 900; }
+    .esub{ flex:1; min-width: 140px; }
+    .pill{
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 900;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      white-space:nowrap;
+    }
+    .etime{ color: var(--muted); font-size: 0.86rem; }
+
+    .modal-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.70);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      padding: 18px;
+      align-items:center;
+      justify-content:center;
+    }
+    .modal-overlay.open{ display:flex; }
+
+    .modal{
+      width:100%;
+      max-width: 760px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      max-height: 90vh;
+      overflow:auto;
+      animation: modalIn .2s ease;
+    }
+    @keyframes modalIn{ from{opacity:0; transform:scale(.97);} to{opacity:1; transform:scale(1);} }
+
+    .modal h2{
+      font-size: 1.2rem;
+      font-weight: 900;
+      margin-bottom: 8px;
+      font-family:"Tajawal", sans-serif;
+    }
+    .subhint{
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .form-group{ margin-bottom: 10px; }
+    label{
+      display:block;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+    }
+    input, select, textarea{
+      width:100%;
+      padding: 11px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      font-family:"Cairo", sans-serif;
+      font-size: 0.92rem;
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{ border-color: rgba(56,189,248,0.55); }
+
+    textarea{ resize: vertical; min-height: 80px; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .modal-footer{
+      display:flex;
+      gap: 10px;
+      justify-content:flex-end;
+      margin-top: 10px;
+      flex-wrap:wrap;
+    }
+
+    .check{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 12px;
+      border-radius: 14px;
+      margin-top: 6px;
+    }
+    .check input{ width:auto; margin-top: 3px; }
+
+    .sched-box{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .sched-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items:center;
+    }
+
+    .toast{
+      position:fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 200;
+      background: var(--success);
+      color:#fff;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-weight: 900;
+      transform: translateX(140%);
+      transition: transform .25s ease;
+      max-width: 92vw;
+    }
+    .toast.show{ transform: translateX(0); }
+
+    @media (max-width: 760px){
+      .grid{ grid-template-columns: 1fr; }
+      .row{ grid-template-columns: 1fr; }
+      .totalbox{ width: 100%; text-align:right; }
+      .modal{ max-width: 96vw; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>🎓 متابعة أبنائي</h1>
+      <p>السفارة المصرية بالكويت | حصص + مصاريف + فواتير + تقرير أسبوعي</p>
+
+      <div class="top-actions">
+        <button class="btn btn-gold" onclick="openTodayModal()">📌 تسجيل جماعي لليوم</button>
+        <button class="btn btn-gold" onclick="openWeeklyReportModal()">📈 تقرير أسبوعي</button>
+        <button class="btn" id="btn-undo" onclick="undoLastAction()" disabled>↩️ تراجع</button>
+        <button class="btn btn-gold" onclick="exportBackup()">⬇️ تصدير نسخة احتياطية</button>
+        <button class="btn" onclick="document.getElementById('importFile').click()">⬆️ استيراد نسخة</button>
+        <button class="btn" onclick="openStorageModal()">🧾 إدارة الفواتير</button>
+        <button class="btn btn-danger" onclick="resetAll()">🧹 إعادة ضبط</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importBackup(this.files[0])">
+      </div>
+
+      <div class="hint">
+        ✅ حفظ تلقائي فوري — حصص هذا الأسبوع — تسجيل جماعي لليوم — تقرير أسبوعي — حصص فائتة دفعة واحدة — تراجع تسجيل الحصة — عدادات تلقائية ورصيد متبقي — دفع + فاتورة + تجديد تلقائي.
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active-sara" onclick="showTab('sara')">👧 سارة | الثانية الثانوي أدبي</button>
+      <button class="tab-btn" onclick="showTab('seif')">👦 سيف | الأول الثانوي</button>
+      <button class="tab-btn" onclick="showTab('both')">📊 نظرة عامة</button>
+    </div>
+
+    <!-- SARA -->
+    <div id="panel-sara" class="panel active">
+      <div class="student-header" style="color: var(--sara); border-color: rgba(232,121,249,0.35);">
+        <div class="avatar">👧</div>
+        <div class="info">
+          <h2>سارة</h2>
+          <p>الصف الثاني الثانوي | القسم الأدبي | السفارة المصرية - الكويت</p>
+        </div>
+        <div class="totalbox">
+          <div class="amount" id="sara-total">0 ج.م</div>
+          <div class="label">إجمالي شهري (دروس + مصاريف)</div>
+        </div>
+      </div>
+
+      <div class="stats" id="sara-stats"></div>
+
+      <div class="section-actions">
+        <button class="btn btn-sara" onclick="openAddSubject('sara')">+ إضافة مادة</button>
+        <button class="btn btn-gold" onclick="openAddExpense('sara')">💰 إضافة مصروف</button>
+      </div>
+
+      <div class="grid" id="sara-subjects"></div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">💸 جدول المصروفات</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>البند</th>
+                <th>النوع</th>
+                <th>الحصص/الدورة</th>
+                <th>المبلغ</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="sara-expenses"></tbody>
+            <tfoot>
+              <tr style="background: var(--surface2)">
+                <td colspan="3" style="font-weight:900">الإجمالي</td>
+                <td id="sara-expenses-total" style="font-weight:900; color: var(--sara)"></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">📅 الجدول الأسبوعي (ثابت)</div>
+        <div class="week-body" id="sara-week"></div>
+      </div>
+    </div>
+
+    <!-- SEIF -->
+    <div id="panel-seif" class="panel">
+      <div class="student-header" style="color: var(--seif); border-color: rgba(56,189,248,0.35);">
+        <div class="avatar">👦</div>
+        <div class="info">
+          <h2>سيف</h2>
+          <p>الصف الأول الثانوي | السفارة المصرية - الكويت</p>
+        </div>
+        <div class="totalbox">
+          <div class="amount" id="seif-total">0 ج.م</div>
+          <div class="label">إجمالي شهري (دروس + مصاريف)</div>
+        </div>
+      </div>
+
+      <div class="stats" id="seif-stats"></div>
+
+      <div class="section-actions">
+        <button class="btn btn-seif" onclick="openAddSubject('seif')">+ إضافة مادة</button>
+        <button class="btn btn-gold" onclick="openAddExpense('seif')">💰 إضافة مصروف</button>
+      </div>
+
+      <div class="grid" id="seif-subjects"></div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">💸 جدول المصروفات</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>البند</th>
+                <th>النوع</th>
+                <th>الحصص/الدورة</th>
+                <th>المبلغ</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="seif-expenses"></tbody>
+            <tfoot>
+              <tr style="background: var(--surface2)">
+                <td colspan="3" style="font-weight:900">الإجمالي</td>
+                <td id="seif-expenses-total" style="font-weight:900; color: var(--seif)"></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">📅 الجدول الأسبوعي (ثابت)</div>
+        <div class="week-body" id="seif-week"></div>
+      </div>
+    </div>
+
+    <!-- BOTH -->
+    <div id="panel-both" class="panel">
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">📊 إجمالي الأبناء</div>
+        <div style="padding: 18px; text-align:center">
+          <div style="color: var(--muted); margin-bottom: 8px">الإجمالي الشهري</div>
+          <div id="grand-total" style="font-size: 2.8rem; font-weight: 900; font-family:'Tajawal',sans-serif;
+            background: linear-gradient(135deg,var(--seif),var(--sara));
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+            0 ج.م
+          </div>
+          <div id="grand-due" style="margin-top:8px; color: var(--muted); font-size: 0.92rem"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">📅 الجدول الأسبوعي الكامل</div>
+        <div class="week-body" id="both-week"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Today Bulk Modal -->
+  <div class="modal-overlay" id="m-today">
+    <div class="modal">
+      <h2>📌 تسجيل جماعي لليوم</h2>
+      <div class="subhint" id="today-hint"></div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">حصص اليوم (سارة + سيف)</div>
+        <div style="padding:14px" id="today-list"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-today')">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Report Modal -->
+  <div class="modal-overlay" id="m-report">
+    <div class="modal">
+      <h2>📈 التقرير الأسبوعي</h2>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 6px">
+        <button id="btn-report-last7" class="mini" onclick="setReportMode('last7')">آخر 7 أيام</button>
+        <button id="btn-report-lastWeek" class="mini" onclick="setReportMode('lastWeek')">تقرير الأسبوع الماضي</button>
+      </div>
+
+      <div style="color:var(--muted);font-size:0.84rem;margin:0 0 10px;line-height:1.6">
+        (الأسبوع الماضي = الأحد → السبت)
+      </div>
+
+      <div class="subhint" id="report-hint"></div>
+      <div class="subhint" id="report-extra"></div>
+
+      <div class="stats" id="report-stats"></div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">⚠️ تنبيهات قرب انتهاء الرصيد</div>
+        <div style="padding:14px" id="report-alerts"></div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">👧 سارة — تفاصيل المواد</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>المادة</th>
+                <th>حضور</th>
+                <th>إلغاء</th>
+                <th>خصم</th>
+                <th>المتبقي</th>
+                <th>تنبيه</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="report-sara"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">👦 سيف — تفاصيل المواد</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>المادة</th>
+                <th>حضور</th>
+                <th>إلغاء</th>
+                <th>خصم</th>
+                <th>المتبقي</th>
+                <th>تنبيه</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="report-seif"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-report')">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Subject -->
+  <div class="modal-overlay" id="m-subject">
+    <div class="modal">
+      <h2 id="m-subject-title">+ إضافة مادة</h2>
+      <div class="subhint">الدورة = عدد حصص محدد. عند انتهاء الرصيد ستحتاج دفع لبدء دورة جديدة.</div>
+
+      <div class="form-group">
+        <label>اسم المادة</label>
+        <input id="f-subject-name" type="text" placeholder="مثال: الرياضيات">
+      </div>
+
+      <div class="form-group">
+        <label>تصنيف المادة</label>
+        <select id="f-subject-type">
+          <option value="math">رياضيات</option>
+          <option value="arabic">لغة عربية</option>
+          <option value="science">علوم</option>
+          <option value="social">دراسات</option>
+          <option value="other">أخرى</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>اسم المدرس</label>
+        <input id="f-teacher" type="text" placeholder="اسم المدرس/المدرسة">
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>المبلغ لكل دورة (ج.م)</label>
+          <input id="f-cost" type="number" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>عدد الحصص لكل دورة</label>
+          <input id="f-sessions" type="number" min="0" placeholder="8">
+        </div>
+      </div>
+
+      <div class="check">
+        <input id="f-count-cancelled" type="checkbox">
+        <div>
+          <div style="font-weight:900">احتساب الحصة الملغاة ضمن العدد</div>
+          <div style="color:var(--muted);font-size:0.82rem">إذا المدرس بيحسب الإلغاء كحصة.</div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:12px">
+        <label>المواعيد الثابتة (أسبوعي)</label>
+        <div class="sched-box" id="sched-add"></div>
+        <button class="btn" style="width:100%; margin-top:10px" onclick="addScheduleRow('sched-add')">+ إضافة موعد</button>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-subject')">إلغاء</button>
+        <button class="btn btn-gold" onclick="saveSubject()">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Subject -->
+  <div class="modal-overlay" id="m-edit">
+    <div class="modal">
+      <h2 id="m-edit-title">✏️ تعديل مادة</h2>
+      <div class="subhint" id="m-edit-hint"></div>
+
+      <div class="form-group">
+        <label>اسم المادة</label>
+        <input id="ef-subject-name" type="text">
+      </div>
+
+      <div class="form-group">
+        <label>تصنيف المادة</label>
+        <select id="ef-subject-type">
+          <option value="math">رياضيات</option>
+          <option value="arabic">لغة عربية</option>
+          <option value="science">علوم</option>
+          <option value="social">دراسات</option>
+          <option value="other">أخرى</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>اسم المدرس</label>
+        <input id="ef-teacher" type="text">
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>المبلغ لكل دورة (ج.م)</label>
+          <input id="ef-cost" type="number" min="0">
+        </div>
+        <div class="form-group">
+          <label>عدد الحصص لكل دورة</label>
+          <input id="ef-sessions" type="number" min="0">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>رقم الدورة الحالية</label>
+          <input id="ef-cycle" type="number" min="1">
+        </div>
+        <div class="form-group">
+          <label>الرصيد المتبقي</label>
+          <input id="ef-remaining" type="number" min="0">
+        </div>
+      </div>
+
+      <div class="check">
+        <input id="ef-count-cancelled" type="checkbox">
+        <div>
+          <div style="font-weight:900">احتساب الحصة الملغاة ضمن العدد</div>
+          <div style="color:var(--muted);font-size:0.82rem">يمكن تغييره حسب اتفاقك مع المدرس.</div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:12px">
+        <label>المواعيد الثابتة (أسبوعي)</label>
+        <div class="sched-box" id="sched-edit"></div>
+        <button class="btn" style="width:100%; margin-top:10px" onclick="addScheduleRow('sched-edit')">+ إضافة موعد</button>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-edit')">إلغاء</button>
+        <button class="btn btn-gold" onclick="saveEditSubject()">حفظ التعديلات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Expense -->
+  <div class="modal-overlay" id="m-expense">
+    <div class="modal">
+      <h2 id="m-expense-title">💰 إضافة مصروف</h2>
+      <div class="subhint">مصاريف إضافية مثل: كتب / طباعة / مستلزمات…</div>
+
+      <div class="form-group">
+        <label>وصف المصروف</label>
+        <input id="f-exp-name" type="text" placeholder="مثال: كتب - مستلزمات">
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>المبلغ (ج.م)</label>
+          <input id="f-exp-cost" type="number" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>التاريخ</label>
+          <input id="f-exp-date" type="date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <textarea id="f-exp-notes" placeholder="أي تفاصيل إضافية…"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-expense')">إلغاء</button>
+        <button class="btn btn-gold" onclick="saveExpense()">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session -->
+  <div class="modal-overlay" id="m-session">
+    <div class="modal">
+      <h2 id="m-session-title">📌 تسجيل حصة</h2>
+      <div class="subhint" id="m-session-hint"></div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>الحالة</label>
+          <select id="f-session-status" onchange="applySessionDefaults(false)">
+            <option value="attended">✅ حضور</option>
+            <option value="cancelled">🚫 إلغاء</option>
+            <option value="postponed">⏭️ تأجيل</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>التاريخ</label>
+          <input id="f-session-date" type="date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>الوقت</label>
+        <input id="f-session-time" type="text" placeholder="مثال: 09:00 مساءً">
+      </div>
+
+      <div class="check">
+        <input id="f-session-count" type="checkbox" onchange="sessionCountTouched=true">
+        <div>
+          <div style="font-weight:900">خصم من رصيد الحصص</div>
+          <div style="color:var(--muted);font-size:0.82rem">افتح/اقفل حسب نظام المدرس (خصوصًا الإلغاء).</div>
+        </div>
+      </div>
+
+      <div id="postpone-box" style="display:none; margin-top: 12px">
+        <div class="row">
+          <div class="form-group">
+            <label>موعد جديد (تاريخ)</label>
+            <input id="f-new-date" type="date">
+          </div>
+          <div class="form-group">
+            <label>موعد جديد (وقت)</label>
+            <input id="f-new-time" type="text" placeholder="مثال: 06:00 مساءً">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ملاحظة</label>
+        <textarea id="f-session-note" placeholder="مثال: حضرنا أونلاين / تم الإلغاء بسبب…"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-session')">إلغاء</button>
+        <button class="btn btn-gold" id="btn-session-save" onclick="saveSession()">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk missed sessions -->
+  <div class="modal-overlay" id="m-bulk">
+    <div class="modal">
+      <h2 id="m-bulk-title">⏩ إضافة حصص فائتة</h2>
+      <div class="subhint" id="m-bulk-hint"></div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>عدد الحصص</label>
+          <input id="f-bulk-count" type="number" min="1" value="1" oninput="updateBulkPreview()">
+        </div>
+        <div class="form-group">
+          <label>الحالة</label>
+          <select id="f-bulk-status" onchange="syncBulkDefaults(); updateBulkPreview()">
+            <option value="attended">✅ حضور</option>
+            <option value="cancelled">🚫 إلغاء</option>
+            <option value="postponed">⏭️ تأجيل</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="check">
+        <input id="f-bulk-use-schedule" type="checkbox" onchange="toggleBulkSchedule(); updateBulkPreview()">
+        <div>
+          <div style="font-weight:900">استخدم مواعيد المادة تلقائيًا</div>
+          <div style="color:var(--muted);font-size:0.82rem">سيتم اختيار أحدث حصص غير مسجلة من جدول المادة.</div>
+        </div>
+      </div>
+
+      <div class="row" id="bulk-until-row" style="margin-top:10px">
+        <div class="form-group">
+          <label>حتى تاريخ</label>
+          <input id="f-bulk-until" type="date" onchange="updateBulkPreview()">
+        </div>
+        <div class="form-group">
+          <label>ملاحظة مشتركة (اختياري)</label>
+          <input id="f-bulk-note" type="text" placeholder="مثال: حصص فائتة" oninput="updateBulkPreview()">
+        </div>
+      </div>
+
+      <div id="bulk-manual-box" style="display:none; margin-top:10px">
+        <div class="row">
+          <div class="form-group">
+            <label>تاريخ واحد لكل الحصص</label>
+            <input id="f-bulk-date" type="date" onchange="updateBulkPreview()">
+          </div>
+          <div class="form-group">
+            <label>وقت واحد (اختياري)</label>
+            <input id="f-bulk-time" type="text" placeholder="مثال: 09:00 مساءً" oninput="updateBulkPreview()">
+          </div>
+        </div>
+      </div>
+
+      <div class="check">
+        <input id="f-bulk-counted" type="checkbox" onchange="bulkCountedTouched=true; updateBulkPreview()">
+        <div>
+          <div style="font-weight:900">خصم من الرصيد لكل حصة</div>
+          <div style="color:var(--muted);font-size:0.82rem">لو الرصيد انتهى، سيتم تطبيق اختيارك حسب الخيار التالي.</div>
+        </div>
+      </div>
+
+      <div class="check">
+        <input id="f-bulk-allow-over" type="checkbox" checked onchange="updateBulkPreview()">
+        <div>
+          <div style="font-weight:900">إذا الرصيد انتهى: أكمل التسجيل بدون خصم</div>
+          <div style="color:var(--muted);font-size:0.82rem">مفيد لو بتسجل حصص قديمة أو تريد تسجيل بدون خصم.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">👀 معاينة قبل الحفظ</div>
+        <div style="padding:14px" id="bulk-preview"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-bulk')">إلغاء</button>
+        <button class="btn btn-gold" onclick="saveBulkSessions()">حفظ الحصص</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment -->
+  <div class="modal-overlay" id="m-pay">
+    <div class="modal">
+      <h2 id="m-pay-title">💳 دفع وبدء دورة جديدة</h2>
+      <div class="subhint" id="m-pay-hint"></div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>المبلغ (ج.م)</label>
+          <input id="f-pay-amount" type="number" min="0">
+        </div>
+        <div class="form-group">
+          <label>تاريخ الدفع</label>
+          <input id="f-pay-date" type="date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>رفع الفاتورة (اختياري)</label>
+        <input id="f-pay-invoice" type="file" accept="image/*,application/pdf">
+        <div style="color:var(--muted);font-size:0.82rem;margin-top:6px; line-height:1.6">
+          (ملاحظة) لحماية سرعة النظام: يوجد حد لحجم الفاتورة وحد لإجمالي الفواتير المخزنة.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ملاحظات</label>
+        <textarea id="f-pay-note" placeholder="مثال: تحويل/كاش…"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-pay')">إلغاء</button>
+        <button class="btn btn-gold" onclick="savePayment()">تأكيد وبدء دورة جديدة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="modal-overlay" id="m-hist">
+    <div class="modal">
+      <h2 id="m-hist-title">📚 سجل المادة</h2>
+      <div class="subhint" id="m-hist-hint"></div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">🧾 المدفوعات</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>الدورة</th>
+                <th>التاريخ</th>
+                <th>المبلغ</th>
+                <th>فاتورة</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="hist-payments"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">🗓️ سجل الحصص (الأحدث أولاً)</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>الحالة</th>
+                <th>الدورة</th>
+                <th>خصم؟</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="hist-sessions"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-hist')">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Storage (Invoices) -->
+  <div class="modal-overlay" id="m-storage">
+    <div class="modal">
+      <h2>🧾 إدارة الفواتير</h2>
+      <div class="subhint" id="m-storage-hint"></div>
+
+      <div class="card">
+        <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:900;">قائمة الفواتير المخزنة</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>الملف</th>
+                <th>الحجم</th>
+                <th>مرتبط بـ</th>
+                <th>فتح</th>
+                <th>حذف</th>
+              </tr>
+            </thead>
+            <tbody id="storage-list"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('m-storage')">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ===========================
+       CONFIG
+    =========================== */
+    const APP_VERSION = 4;
+
+    // حدود الفواتير (لحماية الأداء)
+    const MAX_INVOICE_FILE_MB = 4;
+    const MAX_TOTAL_INVOICES_MB = 25;
+    const MAX_INVOICE_FILE_BYTES = MAX_INVOICE_FILE_MB * 1024 * 1024;
+    const MAX_TOTAL_INVOICE_BYTES = MAX_TOTAL_INVOICES_MB * 1024 * 1024;
+
+    // حد كبير جدًا (عمليًا "لا نهائي" للاستخدام الطبيعي)
+    const MAX_SESSIONS_PER_SUBJECT = 200000;
+
+    // حصص الأسبوع: عدد الأيام القادمة
+    const WEEK_DAYS_AHEAD = 7;
+
+    // التقرير: آخر 7 أيام
+    const REPORT_DAYS = 7;
+
+    // التراجع
+    const UNDO_LIMIT = 25;
+
+    /* ===========================
+       Helpers
+    =========================== */
+    const DAYS_ORDER = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const SUBJECT_ICONS = { math:'📐', arabic:'📖', science:'🔬', social:'🌍', other:'📚' };
+
+    function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+    function uid(prefix){
+      prefix = prefix || "id";
+      try{
+        if(window.crypto && crypto.randomUUID) return prefix + "_" + crypto.randomUUID();
+      }catch(e){}
+      return prefix + "_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+    }
+
+    function esc(s){
+      s = (s === null || s === undefined) ? "" : String(s);
+      return s
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#39;");
+    }
+
+    // آمن للاستخدام داخل onclick مع نصوص بين '...'
+    function jsv(s){
+      s = (s === null || s === undefined) ? "" : String(s);
+      return s
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r");
+    }
+
+    function fmtMoney(n){
+      const x = Number(n || 0);
+      try{
+        return x.toLocaleString("ar-EG") + " ج.م";
+      }catch(e){
+        return x.toLocaleString() + " ج.م";
+      }
+    }
+
+    function todayISO(){
+      const d = new Date();
+      const tz = d.getTimezoneOffset() * 60000;
+      return new Date(d - tz).toISOString().split("T")[0];
+    }
+
+    function dateToISO(d){
+      const tz = d.getTimezoneOffset() * 60000;
+      return new Date(d - tz).toISOString().split("T")[0];
+    }
+
+    function dayNameFromISO(iso){
+      try{
+        const d = new Date(iso + "T00:00:00");
+        return DAYS_ORDER[d.getDay()] || "";
+      }catch(e){
+        return "";
+      }
+    }
+
+    function timeToMinutes(t){
+      t = String(t || "");
+      const m = t.match(/(\d{1,2})\s*:\s*(\d{2})/);
+      if(!m) return 0;
+      let h = parseInt(m[1],10), min = parseInt(m[2],10);
+      const isPM = /مساء/.test(t);
+      const isAM = /صباح/.test(t);
+      if(isPM && h < 12) h += 12;
+      if(isAM && h === 12) h = 0;
+      return h*60 + min;
+    }
+
+    function openModal(id){ document.getElementById(id).classList.add("open"); }
+    function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+
+    document.querySelectorAll(".modal-overlay").forEach(ov=>{
+      ov.addEventListener("click", e=>{
+        if(e.target === ov) ov.classList.remove("open");
+      });
+    });
+
+    function showToast(msg, type){
+      type = type || "success";
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.background = (type==="danger") ? "var(--danger)" : (type==="warn") ? "var(--warn)" : "var(--success)";
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"), 2600);
+    }
+
+    /* ===========================
+       AutoKey + Week/Today generator
+    =========================== */
+    function buildAutoKey(studentKey, subjectId, dateISO, time){
+      return `${studentKey}|${subjectId}|${dateISO}|${time || ""}`;
+    }
+
+    function buildAutoMap(sub){
+      const map = {};
+      (sub.sessionsLog || []).forEach(s=>{
+        if(!s || !s.autoKey) return;
+        if(!map[s.autoKey] || (s.createdAt||0) > (map[s.autoKey].createdAt||0)){
+          map[s.autoKey] = s;
+        }
+      });
+      return map;
+    }
+
+    function getUpcomingOccurrencesForSubject(sub, daysAhead){
+      daysAhead = daysAhead || 7;
+      const base = new Date();
+      base.setHours(0,0,0,0);
+
+      const occ = [];
+      const sched = sub.schedule || [];
+
+      for(let i=0;i<daysAhead;i++){
+        const d = new Date(base);
+        d.setDate(base.getDate() + i);
+
+        const dayName = DAYS_ORDER[d.getDay()];
+        const dateISO = dateToISO(d);
+
+        sched.forEach(sc=>{
+          if(sc && sc.day === dayName){
+            occ.push({
+              dayName,
+              dateISO,
+              time: (sc.time || "—"),
+              sortKey: d.getTime() + timeToMinutes(sc.time) * 60000
+            });
+          }
+        });
+      }
+
+      occ.sort((a,b)=> (a.sortKey||0) - (b.sortKey||0));
+      return occ;
+    }
+
+    function getPastOccurrencesForSubject(sub, daysBack, untilISO){
+      const maxDays = Math.max(1, Number(daysBack||365));
+      const until = untilISO ? new Date(untilISO + "T00:00:00") : new Date();
+      until.setHours(0,0,0,0);
+
+      const sched = sub.schedule || [];
+      const out = [];
+
+      for(let i=0;i<maxDays;i++){
+        const d = new Date(until);
+        d.setDate(until.getDate() - i);
+
+        const dayName = DAYS_ORDER[d.getDay()];
+        const dateISO = dateToISO(d);
+
+        const times = sched.filter(sc=>sc && sc.day === dayName).map(sc=> sc.time || "—");
+        if(!times.length) continue;
+
+        times.forEach(t=>{
+          out.push({
+            dayName,
+            dateISO,
+            time: t,
+            sortKey: d.getTime() + timeToMinutes(t) * 60000
+          });
+        });
+      }
+
+      out.sort((a,b)=> (b.sortKey||0) - (a.sortKey||0));
+      return out;
+    }
+
+    function statusLabel(status){
+      if(status==="attended") return "✅ حضور";
+      if(status==="cancelled") return "🚫 إلغاء";
+      return "⏭️ تأجيل";
+    }
+
+    function getTodayItems(){
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      const dayName = DAYS_ORDER[d.getDay()];
+      const dateISO = dateToISO(d);
+
+      const items = [];
+      const studentOrder = { sara: 0, seif: 1 };
+
+      ["sara","seif"].forEach(k=>{
+        const st = state.students[k];
+        (st.subjects||[]).forEach(sub=>{
+          (sub.schedule||[]).forEach(sc=>{
+            if(sc && sc.day === dayName){
+              items.push({
+                studentKey: k,
+                studentName: st.name,
+                studentColor: (k==="sara") ? "var(--sara)" : "var(--seif)",
+                subjectId: sub.id,
+                subjectName: sub.name,
+                teacher: sub.teacher,
+                time: sc.time || "—",
+                dayName,
+                dateISO
+              });
+            }
+          });
+        });
+      });
+
+      items.sort((a,b)=>{
+        const t = timeToMinutes(a.time) - timeToMinutes(b.time);
+        if(t !== 0) return t;
+        return (studentOrder[a.studentKey] - studentOrder[b.studentKey]) || (String(a.subjectName).localeCompare(String(b.subjectName)));
+      });
+
+      return { dayName, dateISO, items };
+    }
+
+    /* ===========================
+       Weekly Report helpers
+    =========================== */
+    function getLastNDaysRange(n){
+      n = Math.max(1, Number(n||7));
+      const end = new Date();
+      end.setHours(0,0,0,0);
+      const start = new Date(end);
+      start.setDate(end.getDate() - (n - 1));
+      return { startISO: dateToISO(start), endISO: dateToISO(end) };
+    }
+
+    function inISODateRange(dateISO, startISO, endISO){
+      if(!dateISO) return false;
+      return dateISO >= startISO && dateISO <= endISO;
+    }
+
+    function lowThreshold(totalSessions){
+      const t = Math.max(0, Number(totalSessions||0));
+      return Math.max(1, Math.ceil(t * 0.25));
+    }
+
+    /* ===========================
+       Storage Engine (IDB أولاً)
+    =========================== */
+    const DB_NAME = "KidsTrackerDB_v4";
+    const DB_VERSION = 1;
+    const STORE_KV = "kv";
+    const STORE_FILES = "files";
+    const KV_STATE_KEY = "state";
+
+    const LS_FALLBACK_KEY = "kids_tracker_state_v4";
+
+    const StorageEngine = {
+      mode: "ls",
+      db: null,
+
+      async init(){
+        if(!window.indexedDB){
+          this.mode = "ls";
+          return;
+        }
+
+        try{
+          const db = await new Promise((resolve, reject)=>{
+            const req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = ()=>{
+              const d = req.result;
+              if(!d.objectStoreNames.contains(STORE_KV)){
+                d.createObjectStore(STORE_KV, { keyPath: "key" });
+              }
+              if(!d.objectStoreNames.contains(STORE_FILES)){
+                d.createObjectStore(STORE_FILES, { keyPath: "id" });
+              }
+            };
+            req.onsuccess = ()=> resolve(req.result);
+            req.onerror = ()=> reject(req.error);
+          });
+
+          this.db = db;
+          this.mode = "idb";
+        }catch(e){
+          this.mode = "ls";
+          this.db = null;
+        }
+      },
+
+      async getState(){
+        if(this.mode === "idb"){
+          try{
+            const db = this.db;
+            return await new Promise((resolve, reject)=>{
+              const tx = db.transaction(STORE_KV, "readonly");
+              const st = tx.objectStore(STORE_KV);
+              const req = st.get(KV_STATE_KEY);
+              req.onsuccess = ()=> resolve(req.result ? req.result.value : null);
+              req.onerror = ()=> reject(req.error);
+            });
+          }catch(e){
+            return null;
+          }
+        }else{
+          try{
+            const raw = localStorage.getItem(LS_FALLBACK_KEY);
+            if(!raw) return null;
+            return JSON.parse(raw);
+          }catch(e){
+            return null;
+          }
+        }
+      },
+
+      async setState(value){
+        if(this.mode === "idb"){
+          const db = this.db;
+          return await new Promise((resolve, reject)=>{
+            const tx = db.transaction(STORE_KV, "readwrite");
+            tx.objectStore(STORE_KV).put({ key: KV_STATE_KEY, value: value, updatedAt: Date.now() });
+            tx.oncomplete = ()=> resolve(true);
+            tx.onerror = ()=> reject(tx.error);
+          });
+        }else{
+          localStorage.setItem(LS_FALLBACK_KEY, JSON.stringify(value));
+          return true;
+        }
+      },
+
+      async putFile(file){
+        if(this.mode !== "idb") return null;
+        const db = this.db;
+        const id = uid("file");
+        const rec = { id, name: file.name, type: file.type, size: file.size, createdAt: Date.now(), blob: file };
+
+        return await new Promise((resolve, reject)=>{
+          const tx = db.transaction(STORE_FILES, "readwrite");
+          tx.objectStore(STORE_FILES).put(rec);
+          tx.oncomplete = ()=> resolve({ id, name: rec.name, type: rec.type, size: rec.size, createdAt: rec.createdAt });
+          tx.onerror = ()=> reject(tx.error);
+        });
+      },
+
+      async getFile(fileId){
+        if(this.mode !== "idb") return null;
+        const db = this.db;
+        return await new Promise((resolve, reject)=>{
+          const tx = db.transaction(STORE_FILES, "readonly");
+          const req = tx.objectStore(STORE_FILES).get(fileId);
+          req.onsuccess = ()=> resolve(req.result || null);
+          req.onerror = ()=> reject(req.error);
+        });
+      },
+
+      async deleteFile(fileId){
+        if(this.mode !== "idb") return false;
+        const db = this.db;
+        return await new Promise((resolve, reject)=>{
+          const tx = db.transaction(STORE_FILES, "readwrite");
+          tx.objectStore(STORE_FILES).delete(fileId);
+          tx.oncomplete = ()=> resolve(true);
+          tx.onerror = ()=> reject(tx.error);
+        });
+      },
+
+      async clearAll(){
+        if(this.mode === "idb"){
+          const db = this.db;
+          await new Promise((resolve, reject)=>{
+            const tx = db.transaction([STORE_KV, STORE_FILES], "readwrite");
+            tx.objectStore(STORE_KV).clear();
+            tx.objectStore(STORE_FILES).clear();
+            tx.oncomplete = ()=> resolve(true);
+            tx.onerror = ()=> reject(tx.error);
+          });
+        }else{
+          localStorage.removeItem(LS_FALLBACK_KEY);
+        }
+      }
+    };
+
+    /* ===========================
+       Default State (بياناتك)
+    =========================== */
+    const DEFAULT_STATE = {
+      version: APP_VERSION,
+      filesIndex: {},
+      students: {
+        sara: {
+          id: "sara",
+          name: "سارة",
+          grade: "الثانية الثانوي أدبي",
+          subjects: [
+            { id: uid("sub"), name: "الرياضيات", type: "math", teacher: "ياسر الدريني",
+              plan: { sessionsPerCycle: 8, costPerCycle: 450 }, cycleNo: 1, remaining: 8,
+              rules: { countCancelled: false },
+              schedule: [{day:"الجمعة", time:"09:00 مساءً"},{day:"الأحد", time:"09:00 مساءً"}],
+              sessionsLog: [], payments: []
+            },
+            { id: uid("sub"), name: "اللغة العربية", type: "arabic", teacher: "محمد عبدالعزيز",
+              plan: { sessionsPerCycle: 4, costPerCycle: 500 }, cycleNo: 1, remaining: 4,
+              rules: { countCancelled: false },
+              schedule: [{day:"الأحد", time:"05:00 مساءً"}],
+              sessionsLog: [], payments: []
+            },
+            { id: uid("sub"), name: "الدراسات الاجتماعية", type: "social", teacher: "دعاء",
+              plan: { sessionsPerCycle: 12, costPerCycle: 840 }, cycleNo: 1, remaining: 12,
+              rules: { countCancelled: false },
+              schedule: [{day:"السبت", time:"10:00 صباحاً"},{day:"الأحد", time:"02:00 مساءً"},{day:"الخميس", time:"03:00 مساءً"}],
+              sessionsLog: [], payments: []
+            }
+          ],
+          expenses: []
+        },
+        seif: {
+          id: "seif",
+          name: "سيف",
+          grade: "الأول الثانوي",
+          subjects: [
+            { id: uid("sub"), name: "الرياضيات", type: "math", teacher: "ياسر الدريني",
+              plan: { sessionsPerCycle: 8, costPerCycle: 600 }, cycleNo: 1, remaining: 8,
+              rules: { countCancelled: false },
+              schedule: [{day:"الجمعة", time:"10:30 مساءً"},{day:"الاثنين", time:"11:00 مساءً"}],
+              sessionsLog: [], payments: []
+            },
+            { id: uid("sub"), name: "اللغة العربية", type: "arabic", teacher: "محمد عبدالعزيز",
+              plan: { sessionsPerCycle: 4, costPerCycle: 500 }, cycleNo: 1, remaining: 4,
+              rules: { countCancelled: false },
+              schedule: [{day:"الثلاثاء", time:"07:00 مساءً"}],
+              sessionsLog: [], payments: []
+            },
+            { id: uid("sub"), name: "العلوم", type: "science", teacher: "رضا عوض",
+              plan: { sessionsPerCycle: 8, costPerCycle: 310 }, cycleNo: 1, remaining: 8,
+              rules: { countCancelled: false },
+              schedule: [{day:"الأحد", time:"08:00 مساءً"},{day:"الأربعاء", time:"08:00 مساءً"}],
+              sessionsLog: [], payments: []
+            },
+            { id: uid("sub"), name: "الدراسات الاجتماعية", type: "social", teacher: "دعاء",
+              plan: { sessionsPerCycle: 8, costPerCycle: 560 }, cycleNo: 1, remaining: 8,
+              rules: { countCancelled: false },
+              schedule: [{day:"السبت", time:"11:00 صباحاً"},{day:"الاثنين", time:"03:00 مساءً"}],
+              sessionsLog: [], payments: []
+            }
+          ],
+          expenses: []
+        }
+      }
+    };
+
+    /* ===========================
+       App State
+    =========================== */
+    let state = null;
+    let currentTab = "sara";
+
+    let addStudentKey = null;
+
+    let editStudentKey = null;
+    let editSubjectId = null;
+
+    let sessionStudentKey = null;
+    let sessionSubjectId = null;
+    let sessionAutoKey = null;
+    let sessionEditId = null;
+    let sessionCountTouched = false;
+
+    let bulkStudentKey = null;
+    let bulkSubjectId = null;
+    let bulkCountedTouched = false;
+
+    let payStudentKey = null;
+    let paySubjectId = null;
+
+    let histStudentKey = null;
+    let histSubjectId = null;
+
+    // وضع التقرير (آخر 7 أيام / الأسبوع الماضي)
+    let reportMode = "last7";
+
+    // Stack للتراجع
+    let undoStack = [];
+
+    /* ===========================
+       Persist & Boot
+    =========================== */
+    async function persist(){
+      try{
+        await StorageEngine.setState(state);
+      }catch(e){
+        console.warn(e);
+        // بدون أي كلام عن "الذاكرة"
+        showToast("⚠️ تعذر حفظ التغييرات الآن. استخدم (تصدير نسخة احتياطية) كحل سريع.", "warn");
+      }
+    }
+
+    function ensureShape(){
+      if(!state.filesIndex) state.filesIndex = {};
+      if(!state.students) state.students = {};
+      ["sara","seif"].forEach(k=>{
+        const st = state.students[k];
+        if(!st) return;
+        if(!st.subjects) st.subjects = [];
+        if(!st.expenses) st.expenses = [];
+        st.subjects.forEach(sub=>{
+          if(!sub.plan) sub.plan = { sessionsPerCycle: 0, costPerCycle: 0 };
+          if(typeof sub.cycleNo !== "number") sub.cycleNo = 1;
+          if(typeof sub.remaining !== "number") sub.remaining = Number(sub.plan.sessionsPerCycle||0);
+          if(!sub.rules) sub.rules = { countCancelled: false };
+          if(!sub.schedule) sub.schedule = [];
+          if(!sub.sessionsLog) sub.sessionsLog = [];
+          if(!sub.payments) sub.payments = [];
+        });
+      });
+    }
+
+    function collectReferencedFileIds(){
+      const ids = {};
+      ["sara","seif"].forEach(k=>{
+        const st = state.students[k];
+        (st.subjects||[]).forEach(sub=>{
+          (sub.payments||[]).forEach(p=>{
+            if(p && p.invoiceFileId) ids[p.invoiceFileId] = true;
+          });
+        });
+      });
+      return ids;
+    }
+
+    async function cleanupOrphanFiles(){
+      if(StorageEngine.mode !== "idb") return;
+      const ref = collectReferencedFileIds();
+      const idx = state.filesIndex || {};
+      const ids = Object.keys(idx);
+      for(let i=0;i<ids.length;i++){
+        const id = ids[i];
+        if(!ref[id]){
+          try{ await StorageEngine.deleteFile(id); }catch(e){}
+          delete idx[id];
+        }
+      }
+    }
+
+    function updateUndoButton(){
+      const btn = document.getElementById("btn-undo");
+      if(!btn) return;
+      btn.disabled = (undoStack.length === 0);
+      btn.textContent = undoStack.length ? `↩️ تراجع (${undoStack.length})` : "↩️ تراجع";
+    }
+
+    function pushUndo(title, items){
+      undoStack.push({ id: uid("undo"), title: title || "عملية", items: items || [], createdAt: Date.now() });
+      if(undoStack.length > UNDO_LIMIT) undoStack.shift();
+      updateUndoButton();
+    }
+
+    function undoLastAction(){
+      if(!undoStack.length) return;
+      const action = undoStack.pop();
+      const items = (action.items || []).slice().reverse();
+      let removed = 0;
+
+      items.forEach(it=>{
+        if(removeSessionById(it.studentKey, it.subjectId, it.sessionId, { adjustRemaining: true })){
+          removed++;
+        }
+      });
+
+      persist();
+      renderAll();
+      if(document.getElementById("m-hist").classList.contains("open")){
+        renderHistory();
+      }
+
+      updateUndoButton();
+      showToast(`↩️ تم التراجع: ${action.title} (تم حذف ${removed})`);
+    }
+
+    async function boot(){
+      await StorageEngine.init();
+
+      const loaded = await StorageEngine.getState();
+      if(loaded && loaded.students){
+        state = loaded;
+        state.version = APP_VERSION;
+      }else{
+        state = deepClone(DEFAULT_STATE);
+      }
+
+      ensureShape();
+      await cleanupOrphanFiles();
+      await persist();
+      updateUndoButton();
+      renderAll();
+    }
+
+    /* ===========================
+       Calculations
+    =========================== */
+    function calcStudentEstimate(st){
+      const lessons = (st.subjects||[]).reduce((sum,s)=> sum + Number((s.plan||{}).costPerCycle||0), 0);
+      const other = (st.expenses||[]).reduce((sum,e)=> sum + Number(e.cost||0), 0);
+      return { lessons, other, total: lessons + other };
+    }
+
+    function calcStudentSessions(st){
+      const total = (st.subjects||[]).reduce((sum,s)=> sum + Number((s.plan||{}).sessionsPerCycle||0), 0);
+      const remaining = (st.subjects||[]).reduce((sum,s)=> sum + Number(s.remaining||0), 0);
+      return { total, remaining };
+    }
+
+    function calcStudentDueNow(st){
+      return (st.subjects||[]).reduce((sum,s)=>{
+        return sum + (Number(s.remaining||0)===0 ? Number((s.plan||{}).costPerCycle||0) : 0);
+      }, 0);
+    }
+
+    function calcFilesBytes(){
+      const idx = state.filesIndex || {};
+      let total = 0;
+      Object.keys(idx).forEach(id=>{
+        total += Number(idx[id].size||0);
+      });
+      return total;
+    }
+
+    function getCycleStats(sub, cycleNo){
+      cycleNo = Number(cycleNo || sub.cycleNo || 1);
+      const out = { attended:0, cancelled:0, postponed:0, counted:0, total:0 };
+      (sub.sessionsLog||[]).forEach(s=>{
+        if(Number(s.cycleNo) !== cycleNo) return;
+        out.total++;
+        if(s.status==="attended") out.attended++;
+        else if(s.status==="cancelled") out.cancelled++;
+        else out.postponed++;
+        if(s.counted) out.counted++;
+      });
+      return out;
+    }
+
+    /* ===========================
+       Remove session helper
+    =========================== */
+    function removeSessionById(studentKey, subjectId, sessionId, opts){
+      opts = opts || {};
+      const st = state.students[studentKey];
+      if(!st) return false;
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return false;
+
+      const idx = (sub.sessionsLog||[]).findIndex(x=>x.id===sessionId);
+      if(idx === -1) return false;
+
+      const ses = sub.sessionsLog[idx];
+      sub.sessionsLog.splice(idx, 1);
+
+      if(opts.adjustRemaining && ses.counted && Number(ses.cycleNo) === Number(sub.cycleNo)){
+        const max = Number((sub.plan||{}).sessionsPerCycle||0);
+        sub.remaining = Math.min(max, Number(sub.remaining||0) + 1);
+      }
+
+      return true;
+    }
+
+    function quickUnlogSession(studentKey, subjectId, sessionId){
+      if(!confirm("تراجع عن تسجيل هذه الحصة؟")) return;
+      const ok = removeSessionById(studentKey, subjectId, sessionId, { adjustRemaining: true });
+      if(ok){
+        persist();
+        renderAll();
+        if(document.getElementById("m-hist").classList.contains("open")) renderHistory();
+        showToast("↩️ تم التراجع عن تسجيل الحصة");
+      }
+    }
+
+    /* ===========================
+       Render
+    =========================== */
+    function renderAll(){
+      renderStudent("sara");
+      renderStudent("seif");
+      renderBoth();
+
+      if(document.getElementById("m-today").classList.contains("open")){
+        renderTodayList();
+      }
+      if(document.getElementById("m-report").classList.contains("open")){
+        renderWeeklyReport();
+      }
+      if(document.getElementById("m-bulk").classList.contains("open")){
+        updateBulkPreview();
+      }
+      updateUndoButton();
+    }
+
+    function renderStudent(key){
+      const st = state.students[key];
+
+      const est = calcStudentEstimate(st);
+      const sess = calcStudentSessions(st);
+      const due = calcStudentDueNow(st);
+
+      document.getElementById(`${key}-total`).textContent = fmtMoney(est.total);
+
+      const theme = (key==="sara") ? "var(--sara)" : "var(--seif)";
+
+      document.getElementById(`${key}-stats`).innerHTML = `
+        <div class="stat">
+          <div class="v" style="color:${theme}">${(st.subjects||[]).length}</div>
+          <div class="k">عدد المواد</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color:${theme}">${sess.remaining} / ${sess.total}</div>
+          <div class="k">رصيد الحصص المتبقي</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color:${theme}">${fmtMoney(est.lessons)}</div>
+          <div class="k">إجمالي الدروس</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color:${theme}">${fmtMoney(due)}</div>
+          <div class="k">مطلوب دفع الآن (رصيد=0)</div>
+        </div>
+      `;
+
+      const subjectsHtml = (st.subjects||[]).map(sub=>{
+        const total = Number((sub.plan||{}).sessionsPerCycle||0);
+        const rem = Number(sub.remaining||0);
+        const used = Math.max(0, total - rem);
+        const pct = total ? Math.round((used/total)*100) : 0;
+        const locked = (rem === 0);
+
+        const cycleStats = getCycleStats(sub, sub.cycleNo);
+        const lastPay = (sub.payments && sub.payments.length) ? sub.payments[sub.payments.length-1] : null;
+
+        const lastPayHtml = lastPay ? `
+          <div style="margin-top:8px;color:var(--muted);font-size:0.84rem; line-height:1.6">
+            آخر دفعة: <b>${esc(lastPay.date||"-")}</b> (${fmtMoney(lastPay.amount||0)})
+            ${lastPay.invoiceFileId ? `<button class="mini sm" style="margin-right:8px" onclick="openInvoice('${jsv(lastPay.invoiceFileId)}')">📄 فتح</button>` : ""}
+          </div>
+        ` : `<div style="margin-top:8px;color:var(--muted);font-size:0.84rem">لا توجد دفعات مسجلة بعد.</div>`;
+
+        const occ = getUpcomingOccurrencesForSubject(sub, WEEK_DAYS_AHEAD);
+        const autoMap = buildAutoMap(sub);
+
+        const weekRows = occ.map(o=>{
+          const akey = buildAutoKey(key, sub.id, o.dateISO, o.time);
+          const done = autoMap[akey];
+
+          if(done){
+            const lbl = statusLabel(done.status) + (done.counted ? " • خصم✅" : "");
+            return `
+              <div class="week-mini-row done">
+                <span class="w-when">${esc(o.dayName)} • ${esc(o.dateISO)}</span>
+                <span class="w-time">⏰ ${esc(o.time)}</span>
+                <span class="w-status">${esc(lbl)}</span>
+                <div class="week-mini-actions">
+                  <button class="mini sm" onclick="openEditSessionModal('${jsv(key)}','${jsv(sub.id)}','${jsv(done.id)}')">✏️ تعديل</button>
+                  <button class="mini danger sm" onclick="quickUnlogSession('${jsv(key)}','${jsv(sub.id)}','${jsv(done.id)}')">↩️ تراجع</button>
+                  <button class="mini sm" onclick="openHistoryModal('${jsv(key)}','${jsv(sub.id)}')">📚 السجل</button>
+                </div>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="week-mini-row">
+              <span class="w-when">${esc(o.dayName)} • ${esc(o.dateISO)}</span>
+              <span class="w-time">⏰ ${esc(o.time)}</span>
+              <span class="w-status"></span>
+              <div class="week-mini-actions">
+                <button class="mini ok sm" onclick="quickMarkSession('${jsv(key)}','${jsv(sub.id)}','${jsv(o.dateISO)}','${jsv(o.time)}','attended','تسجيل سريع من حصص الأسبوع')">✅ حضور</button>
+                <button class="mini danger sm" onclick="quickMarkSession('${jsv(key)}','${jsv(sub.id)}','${jsv(o.dateISO)}','${jsv(o.time)}','cancelled','تسجيل سريع من حصص الأسبوع')">🚫 إلغاء</button>
+                <button class="mini sm" onclick="openSessionModal('${jsv(key)}','${jsv(sub.id)}', { date:'${jsv(o.dateISO)}', time:'${jsv(o.time)}', autoKey:'${jsv(akey)}' })">تفاصيل</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const weekHtml = `
+          <div class="week-mini">
+            <div class="week-mini-title">
+              <span>📆 حصص هذا الأسبوع (7 أيام قادمة)</span>
+              <span class="pill" style="color:var(--muted)">تسجيل سريع</span>
+            </div>
+            ${weekRows || `<div class="week-empty">لا توجد حصص خلال 7 أيام قادمة.</div>`}
+          </div>
+        `;
+
+        return `
+          <div class="subject">
+            <div class="subject-head">
+              <div class="icon">${SUBJECT_ICONS[sub.type] || "📚"}</div>
+              <div class="stitle">
+                <h3>${esc(sub.name)}</h3>
+                <p>👨‍🏫 ${esc(sub.teacher)}</p>
+              </div>
+              <div class="cost">${fmtMoney((sub.plan||{}).costPerCycle||0)}</div>
+            </div>
+
+            <div class="subject-body">
+              <ul class="list">
+                ${(sub.schedule||[]).map(sc=>`
+                  <li class="li">
+                    <span class="day">${esc(sc.day)}</span>
+                    <span class="time">⏰ ${esc(sc.time)}</span>
+                  </li>
+                `).join("")}
+              </ul>
+
+              ${weekHtml}
+
+              <div class="progress">
+                <div class="meta">
+                  <span>الدورة الحالية: <b>#${Number(sub.cycleNo||1)}</b></span>
+                  <span>متبقي: <b>${rem}</b> من ${total}</span>
+                </div>
+                <div class="bar">
+                  <div class="fill" style="width:${Math.max(0, Math.min(100,pct))}%"></div>
+                </div>
+
+                <div class="badge ${locked ? "locked":""}">
+                  ${locked ? "🔒 الرصيد انتهى — مطلوب دفع لبدء دورة جديدة" : "✅ المادة مفتوحة"}
+                </div>
+
+                <div class="cycle-stats">
+                  <span>✅ حضور (هذه الدورة): <b style="color:var(--success)">${cycleStats.attended}</b></span>
+                  <span>🚫 إلغاء: <b style="color:var(--danger)">${cycleStats.cancelled}</b></span>
+                  <span>⏭️ تأجيل: <b>${cycleStats.postponed}</b></span>
+                  <span>💡 خصم: <b style="color:var(--gold)">${cycleStats.counted}</b></span>
+                </div>
+
+                ${lastPayHtml}
+              </div>
+            </div>
+
+            <div class="subject-foot">
+              <div style="display:flex; gap:8px; flex-wrap:wrap">
+                <button class="mini" onclick="openSessionModal('${jsv(key)}','${jsv(sub.id)}')">📌 تسجيل حصة</button>
+                <button class="mini" onclick="openBulkModal('${jsv(key)}','${jsv(sub.id)}')">⏩ حصص فائتة</button>
+                <button class="mini pay" onclick="openPaymentModal('${jsv(key)}','${jsv(sub.id)}')">💳 دفع</button>
+                <button class="mini" onclick="openHistoryModal('${jsv(key)}','${jsv(sub.id)}')">📚 السجل</button>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap">
+                <button class="mini" onclick="openEditSubject('${jsv(key)}','${jsv(sub.id)}')">✏️ تعديل</button>
+                <button class="mini danger" onclick="deleteSubject('${jsv(key)}','${jsv(sub.id)}')">🗑️ حذف</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById(`${key}-subjects`).innerHTML = subjectsHtml || `
+        <div class="card" style="padding:18px; text-align:center; color: var(--muted)">
+          لا توجد مواد — أضف مادة من زر (+ إضافة مادة)
+        </div>
+      `;
+
+      const expRows = [];
+      (st.subjects||[]).forEach(sub=>{
+        expRows.push(`
+          <tr>
+            <td><b>${esc(sub.name)}</b><div style="color:var(--muted);font-size:0.82rem">👨‍🏫 ${esc(sub.teacher)}</div></td>
+            <td style="color:var(--muted)">دروس</td>
+            <td>${Number((sub.plan||{}).sessionsPerCycle||0)}</td>
+            <td style="font-weight:900">${fmtMoney((sub.plan||{}).costPerCycle||0)}</td>
+            <td><button class="mini sm" onclick="openEditSubject('${jsv(key)}','${jsv(sub.id)}')">تعديل</button></td>
+          </tr>
+        `);
+      });
+
+      (st.expenses||[]).forEach((e,idx)=>{
+        expRows.push(`
+          <tr>
+            <td>${esc(e.name)}<div style="color:var(--muted);font-size:0.82rem">${esc(e.date||"-")}</div></td>
+            <td style="color:var(--muted)">مصروف</td>
+            <td>-</td>
+            <td style="font-weight:900; color: var(--gold)">${fmtMoney(e.cost||0)}</td>
+            <td><button class="mini danger sm" onclick="deleteExpense('${jsv(key)}',${idx})">حذف</button></td>
+          </tr>
+        `);
+      });
+
+      document.getElementById(`${key}-expenses`).innerHTML = expRows.join("") || `
+        <tr><td colspan="5" style="text-align:center; color: var(--muted)">لا توجد بيانات</td></tr>
+      `;
+
+      document.getElementById(`${key}-expenses-total`).textContent = fmtMoney(est.total);
+
+      const events = [];
+      (st.subjects||[]).forEach(sub=>{
+        (sub.schedule||[]).forEach(sc=>{
+          events.push({ day: sc.day, time: sc.time, subject: sub.name, teacher: sub.teacher });
+        });
+      });
+
+      events.sort((a,b)=>{
+        const d = DAYS_ORDER.indexOf(a.day) - DAYS_ORDER.indexOf(b.day);
+        if(d !== 0) return d;
+        return timeToMinutes(a.time) - timeToMinutes(b.time);
+      });
+
+      document.getElementById(`${key}-week`).innerHTML = events.length ? events.map(ev=>`
+        <div class="event">
+          <span class="eday">${esc(ev.day)}</span>
+          <span class="esub"><b>${esc(ev.subject)}</b></span>
+          <span class="pill" style="color: var(--muted)">${esc(ev.teacher)}</span>
+          <span class="etime">⏰ ${esc(ev.time)}</span>
+        </div>
+      `).join("") : `<div style="color:var(--muted); padding: 18px; text-align:center">لا توجد حصص</div>`;
+    }
+
+    function renderBoth(){
+      const sara = state.students.sara;
+      const seif = state.students.seif;
+
+      const saraEst = calcStudentEstimate(sara).total;
+      const seifEst = calcStudentEstimate(seif).total;
+
+      document.getElementById("grand-total").textContent = fmtMoney(saraEst + seifEst);
+
+      const due = calcStudentDueNow(sara) + calcStudentDueNow(seif);
+      document.getElementById("grand-due").textContent = `المطلوب دفعه الآن لبدء دورات جديدة: ${fmtMoney(due)}`;
+
+      const events = [];
+      ["sara","seif"].forEach(k=>{
+        const st = state.students[k];
+        (st.subjects||[]).forEach(sub=>{
+          (sub.schedule||[]).forEach(sc=>{
+            events.push({
+              day: sc.day,
+              time: sc.time,
+              subject: sub.name,
+              teacher: sub.teacher,
+              studentName: st.name,
+              studentColor: (k==="sara") ? "var(--sara)" : "var(--seif)"
+            });
+          });
+        });
+      });
+
+      events.sort((a,b)=>{
+        const d = DAYS_ORDER.indexOf(a.day) - DAYS_ORDER.indexOf(b.day);
+        if(d !== 0) return d;
+        return timeToMinutes(a.time) - timeToMinutes(b.time);
+      });
+
+      document.getElementById("both-week").innerHTML = events.length ? events.map(ev=>`
+        <div class="event">
+          <span class="eday">${esc(ev.day)}</span>
+          <span class="esub"><b>${esc(ev.subject)}</b></span>
+          <span class="pill" style="color:${ev.studentColor}; background: rgba(255,255,255,0.04)">${esc(ev.studentName)}</span>
+          <span class="pill" style="color: var(--muted)">${esc(ev.teacher)}</span>
+          <span class="etime">⏰ ${esc(ev.time)}</span>
+        </div>
+      `).join("") : `<div style="color:var(--muted); padding: 18px; text-align:center">لا توجد حصص</div>`;
+    }
+
+    /* ===========================
+       Tabs
+    =========================== */
+    function showTab(tab){
+      currentTab = tab;
+      document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b=>b.className="tab-btn");
+
+      document.getElementById("panel-"+tab).classList.add("active");
+
+      const btns = document.querySelectorAll(".tab-btn");
+      if(tab==="sara") btns[0].classList.add("active-sara");
+      else if(tab==="seif") btns[1].classList.add("active-seif");
+      else btns[2].classList.add("active-both");
+
+      renderAll();
+    }
+
+    /* ===========================
+       Today Bulk
+    =========================== */
+    function openTodayModal(){
+      renderTodayList();
+      openModal("m-today");
+    }
+
+    function renderTodayList(){
+      const { dayName, dateISO, items } = getTodayItems();
+      document.getElementById("today-hint").textContent =
+        `اليوم: ${dayName} (${dateISO}) — علم حضور/إلغاء بسرعة. زر (تفاصيل) للتأجيل والملاحظات.`;
+
+      const box = document.getElementById("today-list");
+      if(!items.length){
+        box.innerHTML = `<div class="week-empty">لا توجد حصص اليوم.</div>`;
+        return;
+      }
+
+      box.innerHTML = items.map(it=>{
+        const st = state.students[it.studentKey];
+        const sub = (st.subjects||[]).find(s=>s.id===it.subjectId);
+        if(!sub) return "";
+
+        const akey = buildAutoKey(it.studentKey, it.subjectId, it.dateISO, it.time);
+        const autoMap = buildAutoMap(sub);
+        const done = autoMap[akey];
+
+        if(done){
+          const lbl = statusLabel(done.status) + (done.counted ? " • خصم✅" : "");
+          return `
+            <div class="week-mini-row today-row done">
+              <span class="w-when">⏰ ${esc(it.time)}</span>
+              <span class="pill" style="color:${it.studentColor}; background: rgba(255,255,255,0.04)">${esc(it.studentName)}</span>
+              <span class="esub"><b>${esc(it.subjectName)}</b> <span style="color:var(--muted)">• ${esc(it.teacher)}</span></span>
+              <span class="w-status">${esc(lbl)}</span>
+              <div class="week-mini-actions">
+                <button class="mini sm" onclick="openEditSessionModal('${jsv(it.studentKey)}','${jsv(it.subjectId)}','${jsv(done.id)}')">✏️ تعديل</button>
+                <button class="mini danger sm" onclick="quickUnlogSession('${jsv(it.studentKey)}','${jsv(it.subjectId)}','${jsv(done.id)}')">↩️ تراجع</button>
+                <button class="mini sm" onclick="openHistoryModal('${jsv(it.studentKey)}','${jsv(it.subjectId)}')">📚 السجل</button>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="week-mini-row today-row">
+            <span class="w-when">⏰ ${esc(it.time)}</span>
+            <span class="pill" style="color:${it.studentColor}; background: rgba(255,255,255,0.04)">${esc(it.studentName)}</span>
+            <span class="esub"><b>${esc(it.subjectName)}</b> <span style="color:var(--muted)">• ${esc(it.teacher)}</span></span>
+            <span class="w-status"></span>
+            <div class="week-mini-actions">
+              <button class="mini ok sm" onclick="quickMarkSession('${jsv(it.studentKey)}','${jsv(it.subjectId)}','${jsv(it.dateISO)}','${jsv(it.time)}','attended','تسجيل جماعي لليوم')">✅ حضور</button>
+              <button class="mini danger sm" onclick="quickMarkSession('${jsv(it.studentKey)}','${jsv(it.subjectId)}','${jsv(it.dateISO)}','${jsv(it.time)}','cancelled','تسجيل جماعي لليوم')">🚫 إلغاء</button>
+              <button class="mini sm" onclick="openSessionModal('${jsv(it.studentKey)}','${jsv(it.subjectId)}', { date:'${jsv(it.dateISO)}', time:'${jsv(it.time)}', autoKey:'${jsv(akey)}' })">تفاصيل</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    /* ===========================
+       Weekly Report
+    =========================== */
+    function setReportMode(mode){
+      reportMode = mode;
+      renderWeeklyReport();
+    }
+
+    function updateReportModeButtons(){
+      const b1 = document.getElementById("btn-report-last7");
+      const b2 = document.getElementById("btn-report-lastWeek");
+      if(!b1 || !b2) return;
+      b1.classList.toggle("active", reportMode === "last7");
+      b2.classList.toggle("active", reportMode === "lastWeek");
+    }
+
+    function getPreviousWeekRange(){
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      const dow = today.getDay(); // 0 = Sunday
+      const startCurrentWeek = new Date(today);
+      startCurrentWeek.setDate(today.getDate() - dow); // Sunday of current week
+
+      const startLastWeek = new Date(startCurrentWeek);
+      startLastWeek.setDate(startCurrentWeek.getDate() - 7);
+
+      const endLastWeek = new Date(startCurrentWeek);
+      endLastWeek.setDate(startCurrentWeek.getDate() - 1); // Saturday
+
+      return { startISO: dateToISO(startLastWeek), endISO: dateToISO(endLastWeek) };
+    }
+
+    function openWeeklyReportModal(){
+      renderWeeklyReport();
+      updateReportModeButtons();
+      openModal("m-report");
+    }
+
+    function renderWeeklyReport(){
+      let range;
+      let label;
+
+      if(reportMode === "lastWeek"){
+        range = getPreviousWeekRange();
+        label = "الأسبوع الماضي";
+      }else{
+        range = getLastNDaysRange(REPORT_DAYS);
+        label = `آخر ${REPORT_DAYS} أيام`;
+      }
+
+      const startISO = range.startISO;
+      const endISO = range.endISO;
+
+      const dueNowTotal = calcStudentDueNow(state.students.sara) + calcStudentDueNow(state.students.seif);
+
+      let overallAtt = 0, overallCan = 0, overallPost = 0, overallCounted = 0;
+      let overallSessions = 0;
+
+      const alerts = [];
+
+      const perStudent = {
+        sara: { att:0, can:0, post:0 },
+        seif: { att:0, can:0, post:0 }
+      };
+      const cancelMap = {};
+      const cancelMeta = {};
+
+      const dateCounts = {};
+      const cancelDateCounts = {};
+      const cancelDateDetail = {};
+      const attendDateCounts = {};
+      const attendDateDetail = {};
+
+      function buildStudentTable(studentKey){
+        const st = state.students[studentKey];
+        let rows = "";
+
+        (st.subjects||[]).forEach(sub=>{
+          const logs = (sub.sessionsLog||[]).filter(s => inISODateRange(s.date, startISO, endISO));
+          let att = 0, can = 0, post = 0, counted = 0;
+
+          logs.forEach(s=>{
+            if(s.status === "attended") att++;
+            else if(s.status === "cancelled") can++;
+            else if(s.status === "postponed") post++;
+
+            if(s.counted) counted++;
+
+            if(s.date){
+              dateCounts[s.date] = (dateCounts[s.date] || 0) + 1;
+            }
+
+            if(s.status === "cancelled" && s.date){
+              cancelDateCounts[s.date] = (cancelDateCounts[s.date] || 0) + 1;
+              const labelKey = `${st.name} — ${sub.name}`;
+              cancelDateDetail[s.date] = cancelDateDetail[s.date] || {};
+              cancelDateDetail[s.date][labelKey] = (cancelDateDetail[s.date][labelKey] || 0) + 1;
+            }
+
+            if(s.status === "attended" && s.date){
+              attendDateCounts[s.date] = (attendDateCounts[s.date] || 0) + 1;
+              const labelKey = `${st.name} — ${sub.name}`;
+              attendDateDetail[s.date] = attendDateDetail[s.date] || {};
+              attendDateDetail[s.date][labelKey] = (attendDateDetail[s.date][labelKey] || 0) + 1;
+            }
+          });
+
+          overallAtt += att;
+          overallCan += can;
+          overallPost += post;
+          overallCounted += counted;
+
+          perStudent[studentKey].att += att;
+          perStudent[studentKey].can += can;
+          perStudent[studentKey].post += post;
+
+          const k = `${studentKey}|${sub.id}`;
+          cancelMap[k] = can;
+          cancelMeta[k] = { studentName: st.name, subjectName: sub.name };
+
+          const total = Number((sub.plan||{}).sessionsPerCycle||0);
+          const rem = Number(sub.remaining||0);
+          const low = (rem > 0 && rem <= lowThreshold(total));
+          const locked = (rem === 0);
+
+          let alertCell = `<span style="color:var(--muted)">—</span>`;
+          if(locked){
+            alertCell = `<span class="pill" style="color:var(--gold); border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10)">🔒 منتهية</span>`;
+            alerts.push({ studentName: st.name, studentKey, subjectName: sub.name, subjectId: sub.id, remaining: rem, total, type:"locked" });
+          } else if(low){
+            alertCell = `<span class="pill" style="color:var(--warn); border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10)">⚠️ قربت تخلص</span>`;
+            alerts.push({ studentName: st.name, studentKey, subjectName: sub.name, subjectId: sub.id, remaining: rem, total, type:"low" });
+          }
+
+          rows += `
+            <tr>
+              <td><b>${esc(sub.name)}</b><div style="color:var(--muted);font-size:0.82rem">👨‍🏫 ${esc(sub.teacher)}</div></td>
+              <td style="font-weight:900; color: var(--success)">${att}</td>
+              <td style="font-weight:900; color: var(--danger)">${can}</td>
+              <td style="font-weight:900; color: var(--gold)">${counted}</td>
+              <td><b>${rem}</b> <span style="color:var(--muted)">/ ${total}</span></td>
+              <td>${alertCell}</td>
+              <td>
+                <button class="mini sm" onclick="openHistoryModal('${jsv(studentKey)}','${jsv(sub.id)}')">📚 السجل</button>
+                ${locked ? `<button class="mini pay sm" style="margin-right:6px" onclick="openPaymentModal('${jsv(studentKey)}','${jsv(sub.id)}')">💳 دفع</button>` : ``}
+              </td>
+            </tr>
+          `;
+        });
+
+        return rows || `<tr><td colspan="7" style="text-align:center; color:var(--muted)">لا توجد مواد</td></tr>`;
+      }
+
+      const saraRows = buildStudentTable("sara");
+      const seifRows = buildStudentTable("seif");
+
+      overallSessions = overallAtt + overallCan + overallPost;
+
+      document.getElementById("report-hint").textContent =
+        `الفترة: ${startISO} → ${endISO} (${label}) | خصم من الرصيد خلال الفترة: ${overallCounted} حصة | مطلوب دفع الآن: ${fmtMoney(dueNowTotal)}`;
+
+      function avgAttendanceText(studentKey){
+        const t = perStudent[studentKey];
+        const total = (t.att + t.can + t.post);
+        if(total <= 0) return "—";
+        const rate = Math.round((t.att / total) * 100);
+        return `${rate}% (${t.att} من ${total})`;
+      }
+
+      const saraAvg = avgAttendanceText("sara");
+      const seifAvg = avgAttendanceText("seif");
+
+      let maxCan = 0;
+      Object.keys(cancelMap).forEach(k=>{
+        maxCan = Math.max(maxCan, Number(cancelMap[k]||0));
+      });
+
+      let topCancelText = "لا توجد إلغاءات خلال الفترة";
+      if(maxCan > 0){
+        const tops = Object.keys(cancelMap).filter(k => Number(cancelMap[k]||0) === maxCan);
+        topCancelText = tops.map(k=>{
+          const m = cancelMeta[k] || { studentName:"", subjectName:"" };
+          return `${m.studentName} — ${m.subjectName} (${maxCan} إلغاء)`;
+        }).join(" | ");
+      }
+
+      let maxDayCount = 0;
+      Object.keys(dateCounts).forEach(d=>{
+        maxDayCount = Math.max(maxDayCount, Number(dateCounts[d]||0));
+      });
+
+      let busiestText = "—";
+      if(maxDayCount > 0){
+        const topDates = Object.keys(dateCounts)
+          .filter(d => Number(dateCounts[d]||0) === maxDayCount)
+          .sort();
+        busiestText = topDates
+          .map(d => `${dayNameFromISO(d)} ${d} (${maxDayCount} حصة)`)
+          .join(" | ");
+      }
+
+      let maxCancelDayCount = 0;
+      Object.keys(cancelDateCounts).forEach(d=>{
+        maxCancelDayCount = Math.max(maxCancelDayCount, Number(cancelDateCounts[d]||0));
+      });
+
+      let mostCancelDayText = "لا توجد إلغاءات خلال الفترة";
+      if(maxCancelDayCount > 0){
+        const topCancelDates = Object.keys(cancelDateCounts)
+          .filter(d => Number(cancelDateCounts[d]||0) === maxCancelDayCount)
+          .sort();
+
+        mostCancelDayText = topCancelDates.map(d=>{
+          const dayName = dayNameFromISO(d);
+          const detailMap = cancelDateDetail[d] || {};
+          const pairs = Object.keys(detailMap)
+            .map(k=>({ k, c: Number(detailMap[k]||0) }))
+            .sort((a,b)=> b.c - a.c);
+
+          const MAX_SHOW = 3;
+          const shown = pairs.slice(0, MAX_SHOW).map(p=> `${p.k} (${p.c})`).join(" | ");
+          const more = (pairs.length > MAX_SHOW) ? ` +${pairs.length - MAX_SHOW} أكثر` : "";
+
+          const detailsText = (shown ? ` — ${shown}${more}` : "");
+          return `${dayName} ${d} (${maxCancelDayCount} إلغاء)${detailsText}`;
+        }).join(" | ");
+      }
+
+      let maxAttendDayCount = 0;
+      Object.keys(attendDateCounts).forEach(d=>{
+        maxAttendDayCount = Math.max(maxAttendDayCount, Number(attendDateCounts[d]||0));
+      });
+
+      let mostAttendDayText = "لا توجد حصص حضور خلال الفترة";
+      if(maxAttendDayCount > 0){
+        const topAttendDates = Object.keys(attendDateCounts)
+          .filter(d => Number(attendDateCounts[d]||0) === maxAttendDayCount)
+          .sort();
+
+        mostAttendDayText = topAttendDates.map(d=>{
+          const dayName = dayNameFromISO(d);
+          const detailMap = attendDateDetail[d] || {};
+          const pairs = Object.keys(detailMap)
+            .map(k=>({ k, c: Number(detailMap[k]||0) }))
+            .sort((a,b)=> b.c - a.c);
+
+          const MAX_SHOW = 3;
+          const shown = pairs.slice(0, MAX_SHOW).map(p=> `${p.k} (${p.c})`).join(" | ");
+          const more = (pairs.length > MAX_SHOW) ? ` +${pairs.length - MAX_SHOW} أكثر` : "";
+
+          const detailsText = (shown ? ` — ${shown}${more}` : "");
+          return `${dayName} ${d} (${maxAttendDayCount} حضور)${detailsText}`;
+        }).join(" | ");
+      }
+
+      const saraPost = perStudent.sara.post;
+      const seifPost = perStudent.seif.post;
+
+      document.getElementById("report-extra").innerHTML = `
+        <div>📌 متوسط الحضور لكل طالب: <b>سارة</b> ${esc(saraAvg)} | <b>سيف</b> ${esc(seifAvg)}</div>
+        <div>⏭️ الحصص المؤجلة: <b>سارة</b> ${saraPost} | <b>سيف</b> ${seifPost}</div>
+        <div>🚫 أكثر مادة عليها إلغاء: ${esc(topCancelText)} | 📅 أكثر يوم كان فيه إلغاء: ${esc(mostCancelDayText)}</div>
+        <div>✅ أكثر يوم كان فيه حضور: ${esc(mostAttendDayText)}</div>
+        <div>📅 أكثر يوم كان فيه حصص: ${esc(busiestText)}</div>
+      `;
+
+      document.getElementById("report-stats").innerHTML = `
+        <div class="stat">
+          <div class="v" style="color: var(--text)">${overallSessions}</div>
+          <div class="k">إجمالي الحصص المسجلة</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color: var(--success)">${overallAtt}</div>
+          <div class="k">حضور</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color: var(--danger)">${overallCan}</div>
+          <div class="k">إلغاء</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color: var(--text)">${overallPost}</div>
+          <div class="k">تأجيل</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color: var(--gold)">${overallCounted}</div>
+          <div class="k">خصم من الرصيد</div>
+        </div>
+        <div class="stat">
+          <div class="v" style="color: var(--warn)">${alerts.length}</div>
+          <div class="k">مواد قربت تخلص / منتهية</div>
+        </div>
+      `;
+
+      const alertsBox = document.getElementById("report-alerts");
+      if(!alerts.length){
+        alertsBox.innerHTML = `<div class="week-empty">✅ لا توجد مواد قريبة من الانتهاء حاليًا.</div>`;
+      }else{
+        alertsBox.innerHTML = alerts.map(a=>{
+          const color = (a.studentKey==="sara") ? "var(--sara)" : "var(--seif)";
+          const tag = a.type==="locked"
+            ? `<span class="pill" style="color:var(--gold); border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10)">🔒 منتهية</span>`
+            : `<span class="pill" style="color:var(--warn); border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10)">⚠️ قربت تخلص</span>`;
+
+          return `
+            <div class="week-mini-row" style="margin-bottom:10px">
+              <span class="pill" style="color:${color}; background: rgba(255,255,255,0.04)">${esc(a.studentName)}</span>
+              <span class="esub"><b>${esc(a.subjectName)}</b></span>
+              <span class="w-time">متبقي: <b>${a.remaining}</b> / ${a.total}</span>
+              ${tag}
+              <div class="week-mini-actions" style="margin-right:auto">
+                <button class="mini sm" onclick="openHistoryModal('${jsv(a.studentKey)}','${jsv(a.subjectId)}')">📚 السجل</button>
+                ${a.type==="locked" ? `<button class="mini pay sm" onclick="openPaymentModal('${jsv(a.studentKey)}','${jsv(a.subjectId)}')">💳 دفع</button>` : ``}
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      document.getElementById("report-sara").innerHTML = saraRows;
+      document.getElementById("report-seif").innerHTML = seifRows;
+
+      updateReportModeButtons();
+    }
+
+    /* ===========================
+       Schedule Rows
+    =========================== */
+    function addScheduleRow(targetId, day, time){
+      day = day || "";
+      time = time || "";
+      const box = document.getElementById(targetId);
+      const row = document.createElement("div");
+      row.className = "sched-row";
+      row.innerHTML = `
+        <select>
+          ${DAYS_ORDER.map(d=>`<option ${d===day?"selected":""}>${d}</option>`).join("")}
+        </select>
+        <input type="text" placeholder="مثال: 09:00 مساءً" value="${esc(time)}">
+        <button class="btn btn-danger" style="padding:10px 12px" onclick="this.parentElement.remove()">✕</button>
+      `;
+      box.appendChild(row);
+    }
+
+    /* ===========================
+       Subjects: Add/Edit/Delete
+    =========================== */
+    function openAddSubject(studentKey){
+      addStudentKey = studentKey;
+      const st = state.students[studentKey];
+
+      document.getElementById("m-subject-title").textContent = "+ إضافة مادة لـ " + st.name;
+
+      document.getElementById("f-subject-name").value = "";
+      document.getElementById("f-subject-type").value = "math";
+      document.getElementById("f-teacher").value = "";
+      document.getElementById("f-cost").value = "";
+      document.getElementById("f-sessions").value = "8";
+      document.getElementById("f-count-cancelled").checked = false;
+
+      const sb = document.getElementById("sched-add");
+      sb.innerHTML = "";
+      addScheduleRow("sched-add", "الجمعة", "09:00 مساءً");
+
+      openModal("m-subject");
+    }
+
+    function saveSubject(){
+      const name = document.getElementById("f-subject-name").value.trim();
+      const type = document.getElementById("f-subject-type").value;
+      const teacher = document.getElementById("f-teacher").value.trim();
+      const cost = Number(document.getElementById("f-cost").value || 0);
+      const sessions = Number(document.getElementById("f-sessions").value || 0);
+      const countCancelled = document.getElementById("f-count-cancelled").checked;
+
+      if(!name || !teacher){
+        showToast("⚠️ برجاء إدخال اسم المادة واسم المدرس", "warn");
+        return;
+      }
+
+      const entries = Array.from(document.querySelectorAll("#sched-add .sched-row"));
+      const schedule = entries.map(r=>{
+        const d = r.querySelector("select").value;
+        const t = r.querySelector("input").value.trim() || "—";
+        return { day: d, time: t };
+      });
+
+      const sub = {
+        id: uid("sub"),
+        name, type, teacher,
+        plan: { sessionsPerCycle: sessions, costPerCycle: cost },
+        cycleNo: 1,
+        remaining: sessions,
+        rules: { countCancelled: !!countCancelled },
+        schedule,
+        sessionsLog: [],
+        payments: []
+      };
+
+      state.students[addStudentKey].subjects.push(sub);
+
+      closeModal("m-subject");
+      persist();
+      renderAll();
+      showToast("✅ تم إضافة المادة");
+    }
+
+    function openEditSubject(studentKey, subjectId){
+      editStudentKey = studentKey;
+      editSubjectId = subjectId;
+
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      document.getElementById("m-edit-title").textContent = "✏️ تعديل مادة — " + st.name;
+      document.getElementById("m-edit-hint").textContent =
+        "يمكنك تعديل كل شيء. (مهم) ضبط الرصيد/الدورة يدويًا لو احتجت.";
+
+      document.getElementById("ef-subject-name").value = sub.name;
+      document.getElementById("ef-subject-type").value = sub.type;
+      document.getElementById("ef-teacher").value = sub.teacher;
+      document.getElementById("ef-cost").value = Number((sub.plan||{}).costPerCycle||0);
+      document.getElementById("ef-sessions").value = Number((sub.plan||{}).sessionsPerCycle||0);
+      document.getElementById("ef-cycle").value = Number(sub.cycleNo||1);
+      document.getElementById("ef-remaining").value = Number(sub.remaining||0);
+      document.getElementById("ef-count-cancelled").checked = !!(sub.rules && sub.rules.countCancelled);
+
+      const sb = document.getElementById("sched-edit");
+      sb.innerHTML = "";
+      (sub.schedule||[]).forEach(sc=> addScheduleRow("sched-edit", sc.day, sc.time));
+
+      openModal("m-edit");
+    }
+
+    function saveEditSubject(){
+      const st = state.students[editStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===editSubjectId);
+      if(!sub) return;
+
+      const name = document.getElementById("ef-subject-name").value.trim() || sub.name;
+      const type = document.getElementById("ef-subject-type").value;
+      const teacher = document.getElementById("ef-teacher").value.trim() || sub.teacher;
+      const cost = Number(document.getElementById("ef-cost").value || (sub.plan||{}).costPerCycle || 0);
+      const sessions = Number(document.getElementById("ef-sessions").value || (sub.plan||{}).sessionsPerCycle || 0);
+
+      let cycleNo = Math.max(1, Number(document.getElementById("ef-cycle").value || sub.cycleNo || 1));
+      let remaining = Math.max(0, Number(document.getElementById("ef-remaining").value || sub.remaining || 0));
+      if(remaining > sessions) remaining = sessions;
+
+      const countCancelled = document.getElementById("ef-count-cancelled").checked;
+
+      const entries = Array.from(document.querySelectorAll("#sched-edit .sched-row"));
+      const schedule = entries.map(r=>{
+        const d = r.querySelector("select").value;
+        const t = r.querySelector("input").value.trim() || "—";
+        return { day: d, time: t };
+      });
+
+      sub.name = name;
+      sub.type = type;
+      sub.teacher = teacher;
+      sub.plan = sub.plan || {};
+      sub.plan.costPerCycle = cost;
+      sub.plan.sessionsPerCycle = sessions;
+      sub.cycleNo = cycleNo;
+      sub.remaining = remaining;
+      sub.rules = sub.rules || {};
+      sub.rules.countCancelled = !!countCancelled;
+      sub.schedule = schedule;
+
+      closeModal("m-edit");
+      persist();
+      renderAll();
+      showToast("✅ تم حفظ التعديلات");
+    }
+
+    async function deleteSubject(studentKey, subjectId){
+      if(!confirm("حذف المادة؟ سيتم حذف سجل الحصص والمدفوعات المرتبطة.")) return;
+
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      st.subjects = (st.subjects||[]).filter(s=>s.id!==subjectId);
+
+      await cleanupOrphanFiles();
+      persist();
+      renderAll();
+      showToast("🗑️ تم حذف المادة");
+    }
+
+    /* ===========================
+       Expenses
+    =========================== */
+    function openAddExpense(studentKey){
+      addStudentKey = studentKey;
+      const st = state.students[studentKey];
+      document.getElementById("m-expense-title").textContent = "💰 إضافة مصروف لـ " + st.name;
+
+      document.getElementById("f-exp-name").value = "";
+      document.getElementById("f-exp-cost").value = "";
+      document.getElementById("f-exp-date").value = todayISO();
+      document.getElementById("f-exp-notes").value = "";
+
+      openModal("m-expense");
+    }
+
+    function saveExpense(){
+      const name = document.getElementById("f-exp-name").value.trim();
+      const cost = Number(document.getElementById("f-exp-cost").value || 0);
+      const date = document.getElementById("f-exp-date").value;
+      const notes = document.getElementById("f-exp-notes").value.trim();
+
+      if(!name){
+        showToast("⚠️ اكتب وصف المصروف", "warn");
+        return;
+      }
+
+      state.students[addStudentKey].expenses.push({ id: uid("exp"), name, cost, date, notes });
+
+      closeModal("m-expense");
+      persist();
+      renderAll();
+      showToast("✅ تم إضافة المصروف");
+    }
+
+    function deleteExpense(studentKey, idx){
+      if(!confirm("حذف هذا المصروف؟")) return;
+      state.students[studentKey].expenses.splice(idx,1);
+      persist();
+      renderAll();
+      showToast("🗑️ تم حذف المصروف");
+    }
+
+    /* ===========================
+       Quick Mark (week + today)
+    =========================== */
+    function quickMarkSession(studentKey, subjectId, dateISO, time, status, sourceNote){
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      const akey = buildAutoKey(studentKey, subjectId, dateISO, time);
+      const autoMap = buildAutoMap(sub);
+
+      if(autoMap[akey]){
+        showToast("⚠️ هذه الحصة مسجلة بالفعل. راجع السجل.", "warn");
+        return;
+      }
+
+      const countCancelled = !!(sub.rules && sub.rules.countCancelled);
+      let counted = false;
+      if(status === "attended") counted = true;
+      else if(status === "cancelled") counted = countCancelled;
+      else counted = false;
+
+      if(counted && Number(sub.remaining||0) === 0){
+        showToast("🔒 الرصيد انتهى — افتح الدفع لبدء دورة جديدة", "warn");
+        openPaymentModal(studentKey, subjectId);
+        return;
+      }
+
+      const entry = {
+        id: uid("sess"),
+        createdAt: Date.now(),
+        cycleNo: Number(sub.cycleNo||1),
+        status,
+        date: dateISO,
+        time: time || "—",
+        counted: !!counted,
+        note: sourceNote || "تسجيل سريع",
+        postponedTo: null,
+        autoKey: akey
+      };
+
+      sub.sessionsLog = sub.sessionsLog || [];
+      sub.sessionsLog.push(entry);
+
+      if(sub.sessionsLog.length > MAX_SESSIONS_PER_SUBJECT){
+        sub.sessionsLog.splice(0, sub.sessionsLog.length - MAX_SESSIONS_PER_SUBJECT);
+      }
+
+      if(counted){
+        sub.remaining = Math.max(0, Number(sub.remaining||0) - 1);
+      }
+
+      pushUndo(`إضافة حصة (${st.name} / ${sub.name})`, [
+        { studentKey, subjectId, sessionId: entry.id }
+      ]);
+
+      persist();
+      renderAll();
+
+      if(counted && Number(sub.remaining||0) === 0){
+        showToast("✅ تم التسجيل — اكتمل الرصيد (يمكنك الدفع لبدء دورة جديدة)", "warn");
+      }else{
+        showToast("✅ تم تسجيل الحصة");
+      }
+    }
+
+    /* ===========================
+       Sessions (Modal) - Add/Edit
+    =========================== */
+    function openSessionModal(studentKey, subjectId, opts){
+      opts = opts || {};
+      sessionStudentKey = studentKey;
+      sessionSubjectId = subjectId;
+      sessionAutoKey = opts.autoKey || null;
+      sessionEditId = null;
+      sessionCountTouched = false;
+
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      const preDate = opts.date || todayISO();
+      const preTime = (opts.time !== undefined) ? opts.time : ((sub.schedule && sub.schedule[0]) ? sub.schedule[0].time : "");
+
+      document.getElementById("m-session-title").textContent = `📌 تسجيل حصة — ${st.name} / ${sub.name}`;
+      document.getElementById("m-session-hint").textContent =
+        `الدورة الحالية #${sub.cycleNo} — المتبقي: ${sub.remaining} من ${(sub.plan||{}).sessionsPerCycle}`;
+
+      document.getElementById("f-session-status").value = opts.status || "attended";
+      document.getElementById("f-session-date").value = preDate;
+      document.getElementById("f-session-time").value = preTime;
+      document.getElementById("f-session-note").value = "";
+      document.getElementById("f-new-date").value = "";
+      document.getElementById("f-new-time").value = "";
+
+      document.getElementById("btn-session-save").textContent = "حفظ";
+      document.getElementById("btn-session-save").className = "btn btn-gold";
+
+      applySessionDefaults(true);
+
+      openModal("m-session");
+    }
+
+    function openEditSessionModal(studentKey, subjectId, sessionId){
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      const ses = (sub.sessionsLog||[]).find(x=>x.id===sessionId);
+      if(!ses) return;
+
+      sessionStudentKey = studentKey;
+      sessionSubjectId = subjectId;
+      sessionEditId = sessionId;
+      sessionAutoKey = ses.autoKey || null;
+
+      sessionCountTouched = true;
+
+      document.getElementById("m-session-title").textContent = `✏️ تعديل حصة — ${st.name} / ${sub.name}`;
+      document.getElementById("m-session-hint").textContent =
+        `الدورة المسجلة لهذه الحصة #${ses.cycleNo} — الدورة الحالية للمادة #${sub.cycleNo} — المتبقي الآن: ${sub.remaining}`;
+
+      document.getElementById("f-session-status").value = ses.status || "attended";
+      document.getElementById("f-session-date").value = ses.date || todayISO();
+      document.getElementById("f-session-time").value = ses.time || "";
+      document.getElementById("f-session-note").value = ses.note || "";
+      document.getElementById("f-session-count").checked = !!ses.counted;
+
+      document.getElementById("f-new-date").value = (ses.postponedTo && ses.postponedTo.date) ? ses.postponedTo.date : "";
+      document.getElementById("f-new-time").value = (ses.postponedTo && ses.postponedTo.time) ? ses.postponedTo.time : "";
+
+      document.getElementById("btn-session-save").textContent = "حفظ التعديل";
+      document.getElementById("btn-session-save").className = "btn btn-gold";
+
+      applySessionDefaults(false);
+
+      openModal("m-session");
+    }
+
+    function applySessionDefaults(force){
+      const status = document.getElementById("f-session-status").value;
+      const st = state.students[sessionStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===sessionSubjectId);
+      const countCancelled = !!(sub.rules && sub.rules.countCancelled);
+
+      document.getElementById("postpone-box").style.display = (status==="postponed") ? "block" : "none";
+
+      let def = false;
+      if(status==="attended") def = true;
+      if(status==="cancelled") def = countCancelled;
+      if(status==="postponed") def = false;
+
+      if(force || !sessionCountTouched){
+        document.getElementById("f-session-count").checked = def;
+      }
+    }
+
+    function saveSession(){
+      const st = state.students[sessionStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===sessionSubjectId);
+      if(!sub) return;
+
+      const status = document.getElementById("f-session-status").value;
+      const date = document.getElementById("f-session-date").value;
+      const time = document.getElementById("f-session-time").value.trim() || "—";
+      const note = document.getElementById("f-session-note").value.trim();
+      const counted = document.getElementById("f-session-count").checked;
+
+      const newDate = document.getElementById("f-new-date").value;
+      const newTime = document.getElementById("f-new-time").value.trim();
+
+      if(!date){
+        showToast("⚠️ اختر التاريخ", "warn");
+        return;
+      }
+
+      // EDIT MODE
+      if(sessionEditId){
+        const ses = (sub.sessionsLog||[]).find(x=>x.id===sessionEditId);
+        if(!ses) return;
+
+        let newAutoKey = ses.autoKey;
+        if(ses.autoKey){
+          newAutoKey = buildAutoKey(sessionStudentKey, sessionSubjectId, date, time);
+          const autoMap = buildAutoMap(sub);
+          const other = autoMap[newAutoKey];
+          if(other && other.id !== ses.id){
+            showToast("⚠️ يوجد سجل آخر لنفس التاريخ/الوقت", "warn");
+            return;
+          }
+        }
+
+        const oldCounted = !!ses.counted;
+        const oldCycle = Number(ses.cycleNo||1);
+
+        if(!oldCounted && counted && oldCycle === Number(sub.cycleNo) && Number(sub.remaining||0) === 0){
+          showToast("🔒 الرصيد انتهى — لا يمكن الخصم. ادفع أو ألغِ خيار الخصم.", "warn");
+          return;
+        }
+
+        if(oldCycle === Number(sub.cycleNo)){
+          const max = Number((sub.plan||{}).sessionsPerCycle||0);
+          if(oldCounted && !counted){
+            sub.remaining = Math.min(max, Number(sub.remaining||0) + 1);
+          }else if(!oldCounted && counted){
+            sub.remaining = Math.max(0, Number(sub.remaining||0) - 1);
+          }
+        }
+
+        ses.status = status;
+        ses.date = date;
+        ses.time = time;
+        ses.note = note;
+        ses.counted = !!counted;
+        ses.postponedTo = (status==="postponed" && (newDate || newTime)) ? { date: newDate || "", time: newTime || "" } : null;
+
+        // تحديث/توليد autoKey (لتظهر في حصص الأسبوع إن كان مطابقًا)
+        ses.autoKey = newAutoKey || buildAutoKey(sessionStudentKey, sessionSubjectId, date, time);
+
+        ses.updatedAt = Date.now();
+
+        sessionEditId = null;
+        sessionAutoKey = null;
+
+        closeModal("m-session");
+        persist();
+        renderAll();
+        if(document.getElementById("m-hist").classList.contains("open")) renderHistory();
+        showToast("✅ تم تعديل الحصة");
+        return;
+      }
+
+      // ADD MODE
+      // توليد autoKey تلقائيًا حتى لو لم يكن قادمًا من الجدول (يمنع التكرار ويُظهرها ضمن الأسبوع)
+      const computedKey = sessionAutoKey || buildAutoKey(sessionStudentKey, sessionSubjectId, date, time);
+      const autoMap = buildAutoMap(sub);
+      if(autoMap[computedKey]){
+        showToast("⚠️ هذه الحصة مسجلة بالفعل لنفس التاريخ/الوقت", "warn");
+        return;
+      }
+
+      if(counted && Number(sub.remaining||0) === 0){
+        closeModal("m-session");
+        showToast("🔒 الرصيد انتهى — افتح الدفع لبدء دورة جديدة (أو ألغِ خيار الخصم)", "warn");
+        openPaymentModal(sessionStudentKey, sessionSubjectId);
+        sessionAutoKey = null;
+        return;
+      }
+
+      const entry = {
+        id: uid("sess"),
+        createdAt: Date.now(),
+        cycleNo: Number(sub.cycleNo||1),
+        status,
+        date,
+        time,
+        counted: !!counted,
+        note,
+        postponedTo: (status==="postponed" && (newDate || newTime)) ? { date: newDate || "", time: newTime || "" } : null,
+        autoKey: computedKey
+      };
+
+      sub.sessionsLog = sub.sessionsLog || [];
+      sub.sessionsLog.push(entry);
+
+      if(sub.sessionsLog.length > MAX_SESSIONS_PER_SUBJECT){
+        sub.sessionsLog.splice(0, sub.sessionsLog.length - MAX_SESSIONS_PER_SUBJECT);
+      }
+
+      if(counted){
+        sub.remaining = Math.max(0, Number(sub.remaining||0) - 1);
+      }
+
+      pushUndo(`إضافة حصة (${st.name} / ${sub.name})`, [
+        { studentKey: sessionStudentKey, subjectId: sessionSubjectId, sessionId: entry.id }
+      ]);
+
+      sessionAutoKey = null;
+
+      closeModal("m-session");
+      persist();
+      renderAll();
+
+      if(Number(sub.remaining||0) === 0){
+        showToast("✅ اكتمل عدد الحصص — المادة جاهزة للدفع لدورة جديدة", "warn");
+      }else{
+        showToast("✅ تم تسجيل الحصة");
+      }
+    }
+
+    /* ===========================
+       Bulk Missed Sessions
+    =========================== */
+    function openBulkModal(studentKey, subjectId){
+      bulkStudentKey = studentKey;
+      bulkSubjectId = subjectId;
+      bulkCountedTouched = false;
+
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      document.getElementById("m-bulk-title").textContent = `⏩ إضافة حصص فائتة — ${st.name} / ${sub.name}`;
+      document.getElementById("m-bulk-hint").textContent =
+        `اختَر عدد الحصص. (الافتراضي: حضور + خصم). ستظهر لك معاينة قبل الحفظ.`;
+
+      document.getElementById("f-bulk-count").value = 1;
+      document.getElementById("f-bulk-status").value = "attended";
+      document.getElementById("f-bulk-until").value = todayISO();
+      document.getElementById("f-bulk-note").value = "حصص فائتة";
+      document.getElementById("f-bulk-allow-over").checked = true;
+
+      const hasSchedule = (sub.schedule||[]).length > 0;
+      const chk = document.getElementById("f-bulk-use-schedule");
+      chk.checked = hasSchedule;
+      chk.disabled = !hasSchedule;
+
+      document.getElementById("bulk-until-row").style.display = "grid";
+      document.getElementById("f-bulk-until").disabled = !hasSchedule;
+      document.getElementById("bulk-manual-box").style.display = hasSchedule ? "none" : "block";
+
+      if(!hasSchedule){
+        document.getElementById("f-bulk-date").value = todayISO();
+        document.getElementById("f-bulk-time").value = "";
+      }
+
+      syncBulkDefaults();
+      updateBulkPreview();
+
+      openModal("m-bulk");
+    }
+
+    function toggleBulkSchedule(){
+      const useSchedule = document.getElementById("f-bulk-use-schedule").checked;
+      document.getElementById("f-bulk-until").disabled = !useSchedule;
+      document.getElementById("bulk-manual-box").style.display = useSchedule ? "none" : "block";
+      if(!useSchedule){
+        if(!document.getElementById("f-bulk-date").value) document.getElementById("f-bulk-date").value = todayISO();
+      }
+    }
+
+    function syncBulkDefaults(){
+      const st = state.students[bulkStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===bulkSubjectId);
+      if(!sub) return;
+
+      const status = document.getElementById("f-bulk-status").value;
+      const countCancelled = !!(sub.rules && sub.rules.countCancelled);
+
+      let def = false;
+      if(status==="attended") def = true;
+      else if(status==="cancelled") def = countCancelled;
+      else def = false;
+
+      if(!bulkCountedTouched){
+        document.getElementById("f-bulk-counted").checked = def;
+      }
+    }
+
+    function planBulkItems(){
+      const st = state.students[bulkStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===bulkSubjectId);
+      if(!sub) return { items: [], skipped: 0, wouldCount: 0, noCount: 0, finalRemaining: Number(sub.remaining||0) };
+
+      const count = Math.max(1, Number(document.getElementById("f-bulk-count").value || 1));
+      const status = document.getElementById("f-bulk-status").value;
+      const useSchedule = document.getElementById("f-bulk-use-schedule").checked;
+      const countedWanted = document.getElementById("f-bulk-counted").checked;
+      const allowOver = document.getElementById("f-bulk-allow-over").checked;
+      const note = document.getElementById("f-bulk-note").value.trim();
+
+      const autoMap = buildAutoMap(sub);
+      let remainingSim = Number(sub.remaining||0);
+
+      const items = [];
+      let skipped = 0;
+      let wouldCount = 0;
+      let noCount = 0;
+
+      if(useSchedule && (sub.schedule||[]).length){
+        const untilISO = document.getElementById("f-bulk-until").value || todayISO();
+        const candidates = getPastOccurrencesForSubject(sub, 3650, untilISO);
+
+        for(let i=0; i<candidates.length && items.length < count; i++){
+          const c = candidates[i];
+          const akey = buildAutoKey(bulkStudentKey, bulkSubjectId, c.dateISO, c.time);
+
+          if(autoMap[akey]){
+            skipped++;
+            continue;
+          }
+
+          let counted = !!countedWanted;
+          if(counted && remainingSim === 0){
+            if(allowOver){
+              counted = false;
+            }else{
+              break;
+            }
+          }
+
+          items.push({
+            date: c.dateISO,
+            time: c.time || "—",
+            status,
+            counted,
+            autoKey: akey,
+            note
+          });
+
+          if(counted){
+            remainingSim = Math.max(0, remainingSim - 1);
+            wouldCount++;
+          }else{
+            noCount++;
+          }
+        }
+      }else{
+        const date = document.getElementById("f-bulk-date").value || todayISO();
+        const time = document.getElementById("f-bulk-time").value.trim() || "—";
+
+        for(let i=0; i<count; i++){
+          let counted = !!countedWanted;
+          if(counted && remainingSim === 0){
+            if(allowOver){
+              counted = false;
+            }else{
+              break;
+            }
+          }
+
+          items.push({
+            date,
+            time,
+            status,
+            counted,
+            autoKey: null,
+            note
+          });
+
+          if(counted){
+            remainingSim = Math.max(0, remainingSim - 1);
+            wouldCount++;
+          }else{
+            noCount++;
+          }
+        }
+      }
+
+      return { items, skipped, wouldCount, noCount, finalRemaining: remainingSim };
+    }
+
+    function updateBulkPreview(){
+      if(!bulkStudentKey || !bulkSubjectId) return;
+      const st = state.students[bulkStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===bulkSubjectId);
+      if(!sub) return;
+
+      const { items, skipped, wouldCount, noCount, finalRemaining } = planBulkItems();
+
+      const before = Number(sub.remaining||0);
+      const after = finalRemaining;
+
+      const previewBox = document.getElementById("bulk-preview");
+
+      if(!items.length){
+        previewBox.innerHTML = `<div class="week-empty">لا توجد حصص لإضافتها (قد تكون كلها مسجلة بالفعل أو الرصيد انتهى واخترت عدم الإكمال).</div>`;
+        return;
+      }
+
+      const showMax = 10;
+      const listHtml = items.slice(0, showMax).map(it=>{
+        const tag = it.counted ? `<span class="pill" style="color:var(--gold)">خصم✅</span>` : `<span class="pill" style="color:var(--muted)">بدون خصم</span>`;
+        return `
+          <div class="week-mini-row" style="margin-bottom:8px">
+            <span class="w-when">${esc(dayNameFromISO(it.date))} • ${esc(it.date)}</span>
+            <span class="w-time">⏰ ${esc(it.time)}</span>
+            <span class="pill">${esc(statusLabel(it.status))}</span>
+            ${tag}
+          </div>
+        `;
+      }).join("");
+
+      const more = items.length > showMax ? `<div class="week-empty">+ ${items.length - showMax} حصة أخرى…</div>` : "";
+
+      previewBox.innerHTML = `
+        <div style="color:var(--muted);font-size:0.88rem;line-height:1.7;margin-bottom:10px">
+          <div>سيتم إضافة: <b>${items.length}</b> حصة</div>
+          <div>خصم من الرصيد: <b style="color:var(--gold)">${wouldCount}</b> | بدون خصم: <b>${noCount}</b>${skipped ? ` | تم تخطي <b>${skipped}</b> لأنها مسجلة بالفعل` : ""}</div>
+          <div>الرصيد: قبل <b>${before}</b> → بعد <b>${after}</b></div>
+        </div>
+        ${listHtml}
+        ${more}
+      `;
+    }
+
+    function saveBulkSessions(){
+      const st = state.students[bulkStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===bulkSubjectId);
+      if(!sub) return;
+
+      const { items } = planBulkItems();
+      if(!items.length){
+        showToast("⚠️ لا توجد حصص لإضافتها", "warn");
+        return;
+      }
+
+      const addedIds = [];
+
+      for(let i=0;i<items.length;i++){
+        const it = items[i];
+
+        let counted = !!it.counted;
+        if(counted && Number(sub.remaining||0) === 0){
+          counted = false;
+        }
+
+        const entry = {
+          id: uid("sess"),
+          createdAt: Date.now(),
+          cycleNo: Number(sub.cycleNo||1),
+          status: it.status,
+          date: it.date,
+          time: it.time || "—",
+          counted: !!counted,
+          note: it.note || "حصص فائتة",
+          postponedTo: null,
+          autoKey: it.autoKey
+        };
+
+        sub.sessionsLog = sub.sessionsLog || [];
+        sub.sessionsLog.push(entry);
+        addedIds.push(entry.id);
+
+        if(entry.counted){
+          sub.remaining = Math.max(0, Number(sub.remaining||0) - 1);
+        }
+      }
+
+      if(sub.sessionsLog.length > MAX_SESSIONS_PER_SUBJECT){
+        sub.sessionsLog.splice(0, sub.sessionsLog.length - MAX_SESSIONS_PER_SUBJECT);
+      }
+
+      pushUndo(`إضافة ${addedIds.length} حصص فائتة (${st.name} / ${sub.name})`,
+        addedIds.map(id=>({ studentKey: bulkStudentKey, subjectId: bulkSubjectId, sessionId: id }))
+      );
+
+      closeModal("m-bulk");
+      persist();
+      renderAll();
+
+      if(Number(sub.remaining||0) === 0){
+        showToast(`✅ تم إضافة ${addedIds.length} حصة — الرصيد أصبح 0 (يمكنك الدفع لبدء دورة جديدة)`, "warn");
+      }else{
+        showToast(`✅ تم إضافة ${addedIds.length} حصة`);
+      }
+    }
+
+    /* ===========================
+       Payment + Invoice
+    =========================== */
+    function openPaymentModal(studentKey, subjectId){
+      payStudentKey = studentKey;
+      paySubjectId = subjectId;
+
+      const st = state.students[studentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===subjectId);
+      if(!sub) return;
+
+      const locked = Number(sub.remaining||0) === 0;
+
+      document.getElementById("m-pay-title").textContent = `💳 دفع وبدء دورة جديدة — ${st.name} / ${sub.name}`;
+      document.getElementById("m-pay-hint").textContent =
+        locked
+          ? `الرصيد = 0. هذه الدفعة ستبدأ الدورة رقم ${Number(sub.cycleNo||1)+1} وتعيد الرصيد إلى ${(sub.plan||{}).sessionsPerCycle}.`
+          : `⚠️ ما زال لديك ${sub.remaining} حصة متبقية. إذا بدأت دورة جديدة الآن سيتم استبدال الرصيد.`;
+
+      document.getElementById("f-pay-amount").value = Number((sub.plan||{}).costPerCycle||0);
+      document.getElementById("f-pay-date").value = todayISO();
+      document.getElementById("f-pay-note").value = "";
+      document.getElementById("f-pay-invoice").value = "";
+
+      openModal("m-pay");
+    }
+
+    async function openInvoice(fileId){
+      try{
+        const rec = await StorageEngine.getFile(fileId);
+        if(!rec || !rec.blob){
+          showToast("⚠️ الفاتورة غير متاحة", "warn");
+          return;
+        }
+        const url = URL.createObjectURL(rec.blob);
+        window.open(url, "_blank");
+        setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
+      }catch(e){
+        showToast("⚠️ تعذر فتح الفاتورة", "warn");
+      }
+    }
+
+    async function savePayment(){
+      const st = state.students[payStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===paySubjectId);
+      if(!sub) return;
+
+      const amount = Number(document.getElementById("f-pay-amount").value || 0);
+      const date = document.getElementById("f-pay-date").value;
+      const note = document.getElementById("f-pay-note").value.trim();
+      const file = document.getElementById("f-pay-invoice").files[0] || null;
+
+      if(!date){
+        showToast("⚠️ اختر تاريخ الدفع", "warn");
+        return;
+      }
+
+      const locked = Number(sub.remaining||0) === 0;
+      if(!locked){
+        const ok = confirm(`ما زال لديك ${sub.remaining} حصة متبقية. بدء دورة جديدة الآن سيعيد الرصيد كاملًا. متابعة؟`);
+        if(!ok) return;
+      }
+
+      let invoiceMeta = null;
+
+      if(file){
+        if(file.size > MAX_INVOICE_FILE_BYTES){
+          showToast(`⚠️ تم تسجيل الدفع بدون تخزين الفاتورة (حجم كبير).`, "warn");
+        }else if(StorageEngine.mode !== "idb"){
+          showToast(`⚠️ تم تسجيل الدفع بدون تخزين الفاتورة (غير مدعوم هنا).`, "warn");
+        }else{
+          const currentBytes = calcFilesBytes();
+          if(currentBytes + file.size > MAX_TOTAL_INVOICE_BYTES){
+            await cleanupOrphanFiles();
+            const againBytes = calcFilesBytes();
+            if(againBytes + file.size > MAX_TOTAL_INVOICE_BYTES){
+              showToast(`⚠️ تم تسجيل الدفع بدون تخزين الفاتورة.`, "warn");
+            }else{
+              try{ invoiceMeta = await StorageEngine.putFile(file); }
+              catch(e){ console.warn(e); showToast(`⚠️ تم تسجيل الدفع بدون تخزين الفاتورة.`, "warn"); }
+            }
+          }else{
+            try{ invoiceMeta = await StorageEngine.putFile(file); }
+            catch(e){ console.warn(e); showToast(`⚠️ تم تسجيل الدفع بدون تخزين الفاتورة.`, "warn"); }
+          }
+        }
+      }
+
+      const newCycle = Number(sub.cycleNo||1) + 1;
+
+      const payment = {
+        id: uid("pay"),
+        cycleNo: newCycle,
+        amount,
+        date,
+        note,
+        createdAt: Date.now(),
+        invoiceFileId: invoiceMeta ? invoiceMeta.id : null,
+        invoiceName: invoiceMeta ? invoiceMeta.name : null,
+        invoiceType: invoiceMeta ? invoiceMeta.type : null,
+        invoiceSize: invoiceMeta ? invoiceMeta.size : null
+      };
+
+      sub.payments = sub.payments || [];
+      sub.payments.push(payment);
+
+      if(invoiceMeta){
+        state.filesIndex = state.filesIndex || {};
+        state.filesIndex[invoiceMeta.id] = {
+          name: invoiceMeta.name,
+          type: invoiceMeta.type,
+          size: invoiceMeta.size,
+          createdAt: invoiceMeta.createdAt,
+          label: `${st.name} / ${sub.name} / دورة #${newCycle}`
+        };
+      }
+
+      sub.cycleNo = newCycle;
+      sub.remaining = Number((sub.plan||{}).sessionsPerCycle||0);
+
+      closeModal("m-pay");
+      await cleanupOrphanFiles();
+      persist();
+      renderAll();
+
+      showToast("✅ تم تسجيل الدفع وبدء دورة جديدة");
+    }
+
+    /* ===========================
+       History
+    =========================== */
+    function openHistoryModal(studentKey, subjectId){
+      histStudentKey = studentKey;
+      histSubjectId = subjectId;
+      renderHistory();
+      openModal("m-hist");
+    }
+
+    function renderHistory(){
+      const st = state.students[histStudentKey];
+      const sub = (st.subjects||[]).find(s=>s.id===histSubjectId);
+      if(!sub) return;
+
+      document.getElementById("m-hist-title").textContent = `📚 سجل المادة — ${st.name} / ${sub.name}`;
+      document.getElementById("m-hist-hint").textContent =
+        `الدورة الحالية #${sub.cycleNo} — المتبقي: ${sub.remaining} من ${(sub.plan||{}).sessionsPerCycle}`;
+
+      const pays = (sub.payments||[]).slice().sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+      document.getElementById("hist-payments").innerHTML = pays.length ? pays.map(p=>{
+        return `
+          <tr>
+            <td>#${p.cycleNo}</td>
+            <td>${esc(p.date||"-")}</td>
+            <td style="font-weight:900">${fmtMoney(p.amount||0)}</td>
+            <td>
+              ${p.invoiceFileId ? `<button class="mini sm" onclick="openInvoice('${jsv(p.invoiceFileId)}')">فتح</button>` : `<span style="color:var(--muted)">—</span>`}
+            </td>
+            <td><span style="color:var(--muted)">—</span></td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="5" style="text-align:center; color: var(--muted)">لا توجد دفعات</td></tr>`;
+
+      const sessions = (sub.sessionsLog||[]).slice().sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+      document.getElementById("hist-sessions").innerHTML = sessions.length ? sessions.map(ses=>{
+        const sTxt = statusLabel(ses.status);
+        const extra = ses.postponedTo ? `<div style="color:var(--muted);font-size:0.8rem">↳ ${esc(ses.postponedTo.date||"")} ${esc(ses.postponedTo.time||"")}</div>` : "";
+        return `
+          <tr>
+            <td>${esc(ses.date||"-")}</td>
+            <td>${esc(ses.time||"-")}</td>
+            <td>${esc(sTxt)}${extra}</td>
+            <td>#${ses.cycleNo}</td>
+            <td>${ses.counted ? "✅" : "—"}</td>
+            <td style="white-space:nowrap">
+              <button class="mini sm" onclick="openEditSessionModal('${jsv(histStudentKey)}','${jsv(histSubjectId)}','${jsv(ses.id)}')">✏️</button>
+              <button class="mini danger sm" onclick="deleteSession('${jsv(histStudentKey)}','${jsv(histSubjectId)}','${jsv(ses.id)}')">حذف</button>
+              <button class="mini sm" onclick="quickUnlogSession('${jsv(histStudentKey)}','${jsv(histSubjectId)}','${jsv(ses.id)}')">↩️ تراجع</button>
+            </td>
+          </tr>
+        `;
+      }).join("") : `<tr><td colspan="6" style="text-align:center; color: var(--muted)">لا توجد حصص مسجلة</td></tr>`;
+    }
+
+    function deleteSession(studentKey, subjectId, sessionId){
+      if(!confirm("حذف هذه الحصة من السجل؟")) return;
+
+      const ok = removeSessionById(studentKey, subjectId, sessionId, { adjustRemaining: true });
+      if(!ok) return;
+
+      persist();
+      renderAll();
+      if(document.getElementById("m-hist").classList.contains("open")){
+        renderHistory();
+      }
+      showToast("🗑️ تم حذف الحصة");
+    }
+
+    /* ===========================
+       Storage Manager (Invoices)
+    =========================== */
+    function openStorageModal(){
+      const bytes = calcFilesBytes();
+      const count = Object.keys(state.filesIndex||{}).length;
+      const usedMB = (bytes / (1024*1024)).toFixed(2);
+
+      document.getElementById("m-storage-hint").textContent =
+        `المخزن: ${count} فاتورة | ${usedMB} MB مستخدم — الحد الإجمالي: ${MAX_TOTAL_INVOICES_MB} MB (حد الفاتورة الواحدة: ${MAX_INVOICE_FILE_MB} MB).`;
+
+      renderStorageList();
+      openModal("m-storage");
+    }
+
+    function renderStorageList(){
+      const idx = state.filesIndex || {};
+      const rows = [];
+
+      const ref = collectReferencedFileIds();
+
+      Object.keys(idx).sort((a,b)=> (idx[b].createdAt||0) - (idx[a].createdAt||0)).forEach(fileId=>{
+        const meta = idx[fileId];
+        const sizeMB = ((Number(meta.size||0))/(1024*1024)).toFixed(2) + " MB";
+        const label = meta.label || "—";
+
+        rows.push(`
+          <tr>
+            <td>${esc(meta.name||fileId)}</td>
+            <td style="color:var(--muted)">${sizeMB}</td>
+            <td style="color:var(--muted)">${esc(label)}</td>
+            <td>${ref[fileId] ? `<button class="mini sm" onclick="openInvoice('${jsv(fileId)}')">فتح</button>` : `<span style="color:var(--muted)">—</span>`}</td>
+            <td><button class="mini danger sm" onclick="forceDeleteInvoice('${jsv(fileId)}')">حذف</button></td>
+          </tr>
+        `);
+      });
+
+      document.getElementById("storage-list").innerHTML = rows.join("") || `
+        <tr><td colspan="5" style="text-align:center; color: var(--muted)">لا توجد فواتير مخزنة</td></tr>
+      `;
+    }
+
+    async function forceDeleteInvoice(fileId){
+      if(!confirm("حذف الفاتورة من التخزين؟ سيتم فصلها من أي دفع كانت مرتبطة به.")) return;
+
+      ["sara","seif"].forEach(k=>{
+        const st = state.students[k];
+        (st.subjects||[]).forEach(sub=>{
+          (sub.payments||[]).forEach(p=>{
+            if(p.invoiceFileId === fileId){
+              p.invoiceFileId = null;
+              p.invoiceName = null;
+              p.invoiceType = null;
+              p.invoiceSize = null;
+            }
+          });
+        });
+      });
+
+      try{ await StorageEngine.deleteFile(fileId); }catch(e){}
+      if(state.filesIndex && state.filesIndex[fileId]) delete state.filesIndex[fileId];
+
+      await cleanupOrphanFiles();
+      persist();
+      renderAll();
+      renderStorageList();
+
+      showToast("🗑️ تم حذف الفاتورة");
+    }
+
+    /* ===========================
+       Backup / Reset
+    =========================== */
+    function exportBackup(){
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        note: "النسخة تحتوي البيانات فقط. الفواتير المخزنة لا تُدمج داخل ملف النسخة لتجنب تضخم الحجم.",
+        state: state
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "kids_tracker_backup_" + new Date().toISOString().slice(0,10) + ".json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 60000);
+      showToast("⬇️ تم تصدير النسخة الاحتياطية");
+    }
+
+    function importBackup(file){
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = async ()=>{
+        try{
+          const parsed = JSON.parse(reader.result);
+          if(!parsed || !parsed.state || !parsed.state.students){
+            showToast("⚠️ ملف غير صالح", "warn");
+            return;
+          }
+          if(!confirm("استيراد النسخة سيستبدل البيانات الحالية. متابعة؟")) return;
+
+          state = parsed.state;
+          state.version = APP_VERSION;
+          ensureShape();
+          await cleanupOrphanFiles();
+          await persist();
+          renderAll();
+          showToast("✅ تم الاستيراد بنجاح");
+        }catch(e){
+          showToast("⚠️ تعذر قراءة الملف", "warn");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function resetAll(){
+      if(!confirm("سيتم مسح البيانات الحالية (والفواتير المخزنة). هل أنت متأكد؟")) return;
+      try{
+        await StorageEngine.clearAll();
+      }catch(e){}
+      state = deepClone(DEFAULT_STATE);
+      ensureShape();
+      await persist();
+      undoStack = [];
+      updateUndoButton();
+      renderAll();
+      showToast("🧹 تم إعادة الضبط");
+    }
+
+    /* ===========================
+       Start
+    =========================== */
+    boot();
+  </script>
+</body>
+</html>
